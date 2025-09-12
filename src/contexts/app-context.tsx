@@ -1,0 +1,140 @@
+"use client";
+
+import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { CartItem, Product, User, UserRole } from "@/lib/types";
+import { useRouter } from "next/navigation";
+import React, { createContext, useState, useEffect, ReactNode } from "react";
+
+interface AppContextType {
+  user: User | null;
+  products: Product[];
+  cart: CartItem[];
+  login: (user: Omit<User, 'id'>) => void;
+  logout: () => void;
+  addProduct: (product: Omit<Product, 'id' | 'farmerId'>, price: number) => void;
+  addToCart: (product: Product, quantity: number) => void;
+  removeFromCart: (productId: string) => void;
+  updateCartQuantity: (productId: string, quantity: number) => void;
+  clearCart: () => void;
+}
+
+export const AppContext = createContext<AppContextType | null>(null);
+
+const initialProducts: Product[] = [
+  {
+    id: 'prod_1',
+    name: 'Fresh Tomatoes',
+    description: 'Organically grown, juicy tomatoes from the valley.',
+    image: PlaceHolderImages.find(p => p.id === 'tomatoes')?.imageUrl || '',
+    imageHint: PlaceHolderImages.find(p => p.id === 'tomatoes')?.imageHint || '',
+    farmerId: 'farmer_123',
+    price: 150,
+  },
+  {
+    id: 'prod_2',
+    name: 'Crunchy Carrots',
+    description: 'Sweet and crunchy carrots, perfect for salads and stews.',
+    image: PlaceHolderImages.find(p => p.id === 'carrots')?.imageUrl || '',
+    imageHint: PlaceHolderImages.find(p => p.id === 'carrots')?.imageHint || '',
+    farmerId: 'farmer_123',
+    price: 80,
+  },
+    {
+    id: 'prod_3',
+    name: 'Earthy Potatoes',
+    description: 'Versatile potatoes, great for roasting, frying, or mashing.',
+    image: PlaceHolderImages.find(p => p.id === 'potatoes')?.imageUrl || '',
+    imageHint: PlaceHolderImages.find(p => p.id === 'potatoes')?.imageHint || '',
+    farmerId: 'farmer_456',
+    price: 50,
+  },
+  {
+    id: 'prod_4',
+    name: 'Spicy Onions',
+    description: 'Flavorful red onions to spice up any dish.',
+    image: PlaceHolderImages.find(p => p.id === 'onions')?.imageUrl || '',
+    imageHint: PlaceHolderImages.find(p => p.id === 'onions')?.imageHint || '',
+    farmerId: 'farmer_456',
+    price: 60,
+  }
+];
+
+export const AppProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("agri-user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const login = (userData: Omit<User, 'id'>) => {
+    const newUser = { ...userData, id: `${userData.role}_${Date.now()}`};
+    localStorage.setItem("agri-user", JSON.stringify(newUser));
+    setUser(newUser);
+    router.push(`/${newUser.role}/dashboard`);
+  };
+
+  const logout = () => {
+    localStorage.removeItem("agri-user");
+    setUser(null);
+    router.push("/");
+  };
+
+  const addProduct = (productData: Omit<Product, 'id'| 'farmerId'>, price: number) => {
+    if(!user || user.role !== 'farmer') return;
+    const newProduct: Product = {
+        ...productData,
+        id: `prod_${Date.now()}`,
+        farmerId: user.id,
+        price,
+    };
+    setProducts(prev => [newProduct, ...prev]);
+  };
+
+  const addToCart = (product: Product, quantity: number) => {
+    setCart(prevCart => {
+      const existingItem = prevCart.find(item => item.product.id === product.id);
+      if (existingItem) {
+        return prevCart.map(item =>
+          item.product.id === product.id
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
+      }
+      return [...prevCart, { product, quantity }];
+    });
+  };
+
+  const removeFromCart = (productId: string) => {
+    setCart(prevCart => prevCart.filter(item => item.product.id !== productId));
+  };
+
+  const updateCartQuantity = (productId: string, quantity: number) => {
+     if (quantity <= 0) {
+      removeFromCart(productId);
+    } else {
+      setCart(prevCart =>
+        prevCart.map(item =>
+          item.product.id === productId ? { ...item, quantity } : item
+        )
+      );
+    }
+  };
+  
+  const clearCart = () => {
+    setCart([]);
+  };
+
+  return (
+    <AppContext.Provider
+      value={{ user, products, cart, login, logout, addProduct, addToCart, removeFromCart, updateCartQuantity, clearCart }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
+};

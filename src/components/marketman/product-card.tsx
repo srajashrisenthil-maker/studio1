@@ -1,0 +1,57 @@
+"use client";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import type { Product } from "@/lib/types";
+import { formatCurrency } from "@/lib/utils";
+import { ShoppingCart } from "lucide-react";
+import { useApp } from "@/hooks/use-app";
+import { useToast } from "@/hooks/use-toast";
+
+interface ProductCardProps {
+  product: Product;
+}
+
+export function ProductCard({ product }: ProductCardProps) {
+  const { addToCart } = useApp();
+  const { toast } = useToast();
+
+  const handleAddToCart = () => {
+    addToCart(product, 1);
+    toast({
+        title: "Added to Cart",
+        description: `${product.name} has been added to your cart.`
+    })
+  }
+
+  return (
+    <Card className="flex flex-col overflow-hidden transition-all hover:shadow-lg">
+      <CardHeader className="p-0">
+        <div className="relative aspect-[4/3] bg-muted">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover"
+            data-ai-hint={product.imageHint}
+          />
+        </div>
+      </CardHeader>
+      <CardContent className="p-4 flex-1">
+        <CardTitle className="text-lg">{product.name}</CardTitle>
+        <CardDescription className="mt-1 h-10 text-sm overflow-hidden text-ellipsis">
+            {product.description}
+        </CardDescription>
+      </CardContent>
+      <CardFooter className="p-4 pt-0 flex justify-between items-center">
+        <div className="text-lg font-bold text-primary">
+            {formatCurrency(product.price)}
+            <span className="text-sm font-normal text-muted-foreground"> /kg</span>
+        </div>
+        <Button size="sm" onClick={handleAddToCart}>
+          <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}

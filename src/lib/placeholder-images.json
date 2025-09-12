@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-background",
+      "description": "A lush green field under a clear blue sky, representing agriculture.",
+      "imageUrl": "https://picsum.photos/seed/agrihero/1920/1080",
+      "imageHint": "green field"
+    },
+    {
+      "id": "tomatoes",
+      "description": "A close-up of fresh, ripe red tomatoes on the vine.",
+      "imageUrl": "https://picsum.photos/seed/tomatoes/400/300",
+      "imageHint": "fresh tomatoes"
+    },
+    {
+      "id": "carrots",
+      "description": "A bunch of vibrant orange carrots with green tops.",
+      "imageUrl": "https://picsum.photos/seed/carrots/400/300",
+      "imageHint": "fresh carrots"
+    },
+    {
+      "id": "potatoes",
+      "description": "A collection of earthy, freshly harvested potatoes.",
+      "imageUrl": "https://picsum.photos/seed/potatoes/400/300",
+      "imageHint": "fresh potatoes"
+    },
+    {
+      "id": "onions",
+      "description": "A pile of red and white onions.",
+      "imageUrl": "https://picsum.photos/seed/onions/400/300",
+      "imageHint": "fresh onions"
+    },
+    {
+      "id": "lettuce",
+      "description": "A head of crisp, green lettuce.",
+      "imageUrl": "https://picsum.photos/seed/lettuce/400/300",
+      "imageHint": "fresh lettuce"
+    }
+  ]
 }
