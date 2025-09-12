@@ -19,7 +19,7 @@ export default function LoginPage() {
           />
            <div className="relative z-20 flex items-center text-lg font-medium">
              <Leaf className="mr-2 h-8 w-8" />
-             <span className="font-headline text-3xl">AgriConnect</span>
+             <span className="font-headline text-3xl">AGROW</span>
            </div>
            <div className="relative z-20 mt-auto">
             <blockquote className="space-y-2 bg-black/50 p-4 rounded-lg">

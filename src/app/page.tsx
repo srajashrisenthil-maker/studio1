@@ -21,7 +21,7 @@ export default function Home() {
       )}
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4">
         <header className="text-center mb-12">
-          <h1 className="font-headline text-6xl md:text-7xl font-bold text-primary">AgriConnect</h1>
+          <h1 className="font-headline text-6xl md:text-7xl font-bold text-primary">AGROW</h1>
           <p className="mt-4 text-xl text-muted-foreground">Bridging the gap between farm and market</p>
         </header>
 
@@ -61,7 +61,7 @@ export default function Home() {
           </Card>
         </main>
         <footer className="mt-12 text-center text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} AgriConnect. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} AGROW. All rights reserved.</p>
         </footer>
       </div>
     </div>
