@@ -39,7 +39,7 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
   const [isLoading, setIsLoading] = useState(false);
   const [prediction, setPrediction] = useState<AIPricePredictionOutput | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors }, reset, getValues } = useForm<FormData>({
     resolver: zodResolver(formSchema),
   });
 
@@ -109,10 +109,11 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
   };
 
   const handleAddProduct = () => {
-    if (prediction && imagePreview) {
+    const formValues = getValues();
+    if (prediction && imagePreview && formValues.name && formValues.description) {
       const productData = {
-        name: (document.getElementById('name') as HTMLInputElement).value,
-        description: (document.getElementById('description') as HTMLTextAreaElement).value,
+        name: formValues.name,
+        description: formValues.description,
         image: imagePreview,
         imageHint: 'custom product'
       };
