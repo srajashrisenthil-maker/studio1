@@ -13,12 +13,16 @@ import { CreditCard, ShoppingCart, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
 
 export default function CartPage() {
     const { user, cart, removeFromCart, updateCartQuantity, clearCart } = useApp();
     const router = useRouter();
     const { toast } = useToast();
+    const [isPaymentDialogOpen, setPaymentDialogOpen] = useState(false);
 
     useEffect(() => {
         if (!user) {
@@ -29,11 +33,17 @@ export default function CartPage() {
     }, [user, router]);
     
     const subtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+    const total = subtotal * 1.05;
 
     const handleCheckout = () => {
+        setPaymentDialogOpen(true);
+    }
+
+    const handlePayment = () => {
+        setPaymentDialogOpen(false);
         toast({
-            title: "Checkout Initiated",
-            description: "Payment gateway integration would proceed from here."
+            title: "Payment Successful",
+            description: "Your order has been placed."
         });
         clearCart();
         router.push("/marketman/dashboard");
@@ -123,7 +133,7 @@ export default function CartPage() {
                                 <Separator />
                                 <div className="flex justify-between font-bold text-lg">
                                     <span>Total</span>
-                                    <span>{formatCurrency(subtotal * 1.05)}</span>
+                                    <span>{formatCurrency(total)}</span>
                                 </div>
                             </CardContent>
                             <CardFooter>
@@ -137,6 +147,50 @@ export default function CartPage() {
                     )}
                 </div>
             </main>
+             <Dialog open={isPaymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="font-headline">Complete Your Payment</DialogTitle>
+                         <DialogDescription>
+                            Total Amount: <span className="font-bold">{formatCurrency(total)}</span>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <Tabs defaultValue="upi">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="upi">UPI</TabsTrigger>
+                            <TabsTrigger value="bank">Bank Account</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="upi" className="pt-4 space-y-4">
+                           <div className="flex flex-col items-center space-y-2">
+                                <Image src="https://picsum.photos/seed/qrcode/200/200" alt="UPI QR Code" width={200} height={200} data-ai-hint="QR code" />
+                                <p className="text-sm text-muted-foreground">Scan QR or enter UPI ID</p>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="upi-id">UPI ID</Label>
+                                <Input id="upi-id" placeholder="yourname@upi" />
+                            </div>
+                        </TabsContent>
+                        <TabsContent value="bank" className="pt-4 space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="acc-holder">Account Holder Name</Label>
+                                <Input id="acc-holder" placeholder="e.g. Ram Singh" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="acc-number">Account Number</Label>
+                                <Input id="acc-number" placeholder="Enter your account number" />
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="ifsc">IFSC Code</Label>
+                                <Input id="ifsc" placeholder="Enter your bank's IFSC code" />
+                            </div>
+                        </TabsContent>
+                    </Tabs>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setPaymentDialogOpen(false)}>Cancel</Button>
+                        <Button onClick={handlePayment}>Pay {formatCurrency(total)}</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
