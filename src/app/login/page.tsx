@@ -34,7 +34,7 @@ export default function LoginPage() {
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
-                backgroundImage: `url(https://picsum.photos/seed/loginpage/1200/1600)`,
+                backgroundImage: `url(https://i.ibb.co/yYyVz3D/pexels-greta-hoffman-7722731.jpg)`,
             }}
           />
            <div className="relative z-20 flex items-center text-lg font-medium">
