@@ -10,8 +10,6 @@ function Login() {
   const role = searchParams.get('role') === 'marketman' ? 'marketman' : 'farmer';
 
   const farmerImage = "https://i.ibb.co/yYyVz3D/pexels-greta-hoffman-7722731.jpg";
-  const marketmanImage = "https://i.ibb.co/yYyVz3D/pexels-greta-hoffman-7722731.jpg";
-  const currentImage = role === 'marketman' ? marketmanImage : farmerImage;
   
   const farmerQuote = {
     text: "This platform has revolutionized the way I sell my produce. Direct access to marketmen and fair pricing is a game changer.",
@@ -28,11 +26,12 @@ function Login() {
 
   return (
     <>
-      <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
+      {role === 'farmer' ? (
+        <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
-                backgroundImage: `url(${currentImage})`,
+                backgroundImage: `url(${farmerImage})`,
             }}
           />
            <div className="relative z-20 flex items-center text-lg font-medium">
@@ -48,7 +47,20 @@ function Login() {
             </blockquote>
           </div>
        </div>
-      <div className="lg:p-8">
+      ) : (
+         <div className="hidden lg:flex items-center justify-center p-10 bg-muted">
+            <div className="relative z-20 mt-auto">
+              <blockquote className="space-y-2">
+                <p className="text-lg">
+                  &ldquo;{currentQuote.text}&rdquo;
+                </p>
+                <footer className="text-sm">{currentQuote.author}</footer>
+              </blockquote>
+            </div>
+         </div>
+      )}
+
+      <div className="lg:p-8 flex items-center">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[400px]">
           <div className="flex flex-col space-y-2 text-center">
              <div className="mx-auto bg-primary text-primary-foreground rounded-full p-4 w-fit mb-4">
@@ -70,8 +82,12 @@ function Login() {
 
 
 function LoginPageContent() {
+  const searchParams = useSearchParams();
+  const role = searchParams.get('role') === 'marketman' ? 'marketman' : 'farmer';
+  const gridColsClass = role === 'farmer' ? 'lg:grid-cols-2' : 'lg:grid-cols-2';
+
   return (
-    <div className="container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+    <div className={`container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none ${gridColsClass} lg:px-0`}>
         <Login />
     </div>
   )
