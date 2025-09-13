@@ -2,9 +2,9 @@
   "placeholderImages": [
     {
       "id": "hero-background",
-      "description": "A lush green field under a clear blue sky, representing agriculture.",
-      "imageUrl": "https://picsum.photos/seed/agrihero/1920/1080",
-      "imageHint": "green field"
+      "description": "A scenic view of a farm with a barn and a tractor in the field.",
+      "imageUrl": "https://picsum.photos/seed/farmview/1920/1080",
+      "imageHint": "farm tractor"
     },
     {
       "id": "tomatoes",
