@@ -10,7 +10,7 @@ function Login() {
   const role = searchParams.get('role') === 'marketman' ? 'marketman' : 'farmer';
 
   const farmerImage = "https://i.ibb.co/yYyVz3D/pexels-greta-hoffman-7722731.jpg";
-  const marketmanImage = "https://i.ibb.co/bKjGZPg/pexels-tom-fisk-1595104.jpg";
+  const marketmanImage = "https://i.ibb.co/yYyVz3D/pexels-greta-hoffman-7722731.jpg";
   const currentImage = role === 'marketman' ? marketmanImage : farmerImage;
   
   const farmerQuote = {
