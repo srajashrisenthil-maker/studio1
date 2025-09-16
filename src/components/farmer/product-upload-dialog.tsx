@@ -16,11 +16,10 @@ import { Textarea } from '../ui/textarea';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Loader2, Wand2, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { Loader2, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useApp } from '@/hooks/use-app';
 import { aiPricePrediction, AIPricePredictionOutput } from '@/ai/flows/ai-price-prediction';
-import Image from 'next/image';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { formatCurrency } from '@/lib/utils';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -38,7 +37,6 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [prediction, setPrediction] = useState<AIPricePredictionOutput | null>(null);
-  const [imagePreview] = useState<string>(PlaceHolderImages[0].imageUrl);
   const [finalPrice, setFinalPrice] = useState<number>(0);
 
   const { register, handleSubmit, formState: { errors }, reset, getValues } = useForm<FormData>({
@@ -53,14 +51,6 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
   }, [prediction]);
   
   const onSubmit = async (data: FormData) => {
-    if (!imagePreview) {
-      toast({
-        variant: 'destructive',
-        title: 'Image required',
-        description: 'Please generate an image for your product.',
-      });
-      return;
-    }
     if (!user?.location) {
          toast({
             variant: 'destructive',
@@ -77,13 +67,16 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
       const distanceToMarket = Math.floor(Math.random() * 50) + 5; // 5-55 km
       const logisticsCost = distanceToMarket * 15; // Rs. 15 per km
 
+      // Use a placeholder for the prediction image, as we are not generating one.
+      const predictionImage = PlaceHolderImages[1].imageUrl; 
+
       const result = await aiPricePrediction({
         productName: data.name,
         productDescription: data.description,
         marketTrends: 'High demand for fresh, organic produce due to seasonal festivities.',
         logisticsCost,
         distanceToMarket,
-        productImage: imagePreview,
+        productImage: predictionImage,
       });
       setPrediction(result);
     } catch (error) {
@@ -100,7 +93,9 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
 
   const handleAddProduct = () => {
     const formValues = getValues();
-    const randomImage = PlaceHolderImages[Math.floor(Math.random() * (PlaceHolderImages.length -1)) + 1];
+    // Filter out the hero image and select a random product image
+    const productImages = PlaceHolderImages.filter(img => img.id !== 'hero-background');
+    const randomImage = productImages[Math.floor(Math.random() * productImages.length)];
 
     if (finalPrice > 0 && formValues.name && formValues.description) {
       const productData = {
