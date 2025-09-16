@@ -11,7 +11,7 @@ interface AppContextType {
   cart: CartItem[];
   login: (user: Omit<User, 'id'>) => void;
   logout: () => void;
-  addProduct: (product: Omit<Product, 'id' | 'farmerId'>, price: number) => void;
+  addProduct: (product: Omit<Product, 'id' | 'farmerId' | 'rating'>, price: number) => void;
   addToCart: (product: Product, quantity: number) => void;
   removeFromCart: (productId: string) => void;
   updateCartQuantity: (productId: string, quantity: number) => void;
@@ -49,6 +49,7 @@ const initialProducts: Product[] = [
     imageHint: PlaceHolderImages.find(p => p.id === 'tomatoes')?.imageHint || '',
     farmerId: 'farmer_123',
     price: 150,
+    rating: 4.5,
   },
   {
     id: 'prod_2',
@@ -58,6 +59,7 @@ const initialProducts: Product[] = [
     imageHint: PlaceHolderImages.find(p => p.id === 'carrots')?.imageHint || '',
     farmerId: 'farmer_123',
     price: 80,
+    rating: 4.8,
   },
     {
     id: 'prod_3',
@@ -67,6 +69,7 @@ const initialProducts: Product[] = [
     imageHint: PlaceHolderImages.find(p => p.id === 'potatoes')?.imageHint || '',
     farmerId: 'farmer_456',
     price: 50,
+    rating: 4.2,
   },
   {
     id: 'prod_4',
@@ -76,6 +79,7 @@ const initialProducts: Product[] = [
     imageHint: PlaceHolderImages.find(p => p.id === 'onions')?.imageHint || '',
     farmerId: 'farmer_456',
     price: 60,
+    rating: 4.0,
   }
 ];
 
@@ -105,13 +109,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     router.push("/");
   };
 
-  const addProduct = (productData: Omit<Product, 'id'| 'farmerId'>, price: number) => {
+  const addProduct = (productData: Omit<Product, 'id'| 'farmerId' | 'rating'>, price: number) => {
     if(!user || user.role !== 'farmer') return;
     const newProduct: Product = {
         ...productData,
         id: `prod_${Date.now()}`,
         farmerId: user.id,
         price,
+        rating: 0, // New products start with a rating of 0
     };
     setProducts(prev => [newProduct, ...prev]);
   };

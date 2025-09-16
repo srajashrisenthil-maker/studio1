@@ -22,10 +22,17 @@ export function Recommendations() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        if (products.length === 0) {
+            setIsLoading(false);
+            return;
+        }
         const fetchRecommendations = async () => {
             setIsLoading(true);
             try {
-                const result = await getProductRecommendations({ orderHistory: mockOrderHistory });
+                const result = await getProductRecommendations({ 
+                    orderHistory: mockOrderHistory,
+                    availableProducts: products 
+                });
                 setRecommendations(result);
             } catch (error) {
                 console.error("Failed to get recommendations:", error);
@@ -34,7 +41,7 @@ export function Recommendations() {
             }
         };
         fetchRecommendations();
-    }, []);
+    }, [products]);
 
     const recommendedProducts = recommendations?.recommendations.map(rec => {
         const product = products.find(p => p.id === rec.productId);

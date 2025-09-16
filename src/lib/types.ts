@@ -20,6 +20,7 @@ export type Product = {
   imageHint: string;
   farmerId: string;
   price: number;
+  rating: number;
 };
 
 export type CartItem = {
