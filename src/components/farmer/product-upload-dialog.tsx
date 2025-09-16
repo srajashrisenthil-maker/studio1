@@ -184,7 +184,7 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
             </div>
             <DialogFooter>
                 <Button variant="outline" onClick={() => setPrediction(null)}>Go Back</Button>
-                <Button onClick={handleAddProduct}>Set Price & Add Product</Button>
+                <Button onClick={handleAddProduct}>Add Product with Final Price</Button>
             </DialogFooter>
           </div>
         )}
