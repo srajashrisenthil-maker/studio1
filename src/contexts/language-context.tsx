@@ -54,6 +54,9 @@ const translations: Record<string, Record<Language, string>> = {
   'marketman-dashboard-welcome': { en: 'Welcome', ta: 'வரவேற்பு' },
   'marketman-dashboard-description': { en: 'Browse fresh produce from local farmers.', ta: 'உள்ளூர் விவசாயிகளிடமிருந்து புதிய விளைபொருட்களை உலாவவும்.' },
   'marketman-dashboard-available-products': { en: 'Available Products', ta: 'கிடைக்கும் பொருட்கள்' },
+  'farmer-profile-title': { en: 'Farmer Profile', ta: 'விவசாயி சுயவிவரம்' },
+  'farmer-role-label': { en: 'Farmer', ta: 'விவசாயி' },
+  'contact-farmer-button': { en: 'Contact Farmer', ta: 'விவசாயியைத் தொடர்பு கொள்ளுங்கள்' },
 };
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {

@@ -16,9 +16,29 @@ interface AppContextType {
   removeFromCart: (productId: string) => void;
   updateCartQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
+  getFarmerById: (farmerId: string) => User | undefined;
 }
 
 export const AppContext = createContext<AppContextType | null>(null);
+
+const mockFarmers: User[] = [
+    {
+        id: 'farmer_123',
+        name: 'Suresh Kumar',
+        phone: '9876543210',
+        address: '123, Green Valley, Pollachi, Tamil Nadu',
+        location: { lat: 10.66, lon: 77.01 },
+        role: 'farmer'
+    },
+    {
+        id: 'farmer_456',
+        name: 'Anitha Devi',
+        phone: '8765432109',
+        address: '456, Farm Road, Ooty, Tamil Nadu',
+        location: { lat: 11.41, lon: 76.69 },
+        role: 'farmer'
+    }
+];
 
 const initialProducts: Product[] = [
   {
@@ -130,9 +150,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setCart([]);
   };
 
+  const getFarmerById = (farmerId: string) => {
+    // In a real app, this would be an API call.
+    // We also add the new farmers added via the UI.
+    const allUsers = [...mockFarmers];
+    if (user && user.role === 'farmer' && !allUsers.find(u => u.id === user.id)) {
+        allUsers.push(user);
+    }
+    return allUsers.find(f => f.id === farmerId && f.role === 'farmer');
+  };
+
   return (
     <AppContext.Provider
-      value={{ user, products, cart, login, logout, addProduct, addToCart, removeFromCart, updateCartQuantity, clearCart }}
+      value={{ user, products, cart, login, logout, addProduct, addToCart, removeFromCart, updateCartQuantity, clearCart, getFarmerById }}
     >
       {children}
     </AppContext.Provider>
