@@ -27,3 +27,21 @@ export type CartItem = {
   product: Product;
   quantity: number;
 };
+
+export type OrderItem = {
+  productId: string;
+  productName: string;
+  productImage: string;
+  quantity: number;
+  price: number;
+  farmerId: string;
+};
+
+export type Order = {
+    id: string;
+    marketmanId: string;
+    marketmanName: string;
+    items: OrderItem[];
+    total: number;
+    date: string;
+};

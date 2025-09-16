@@ -1,7 +1,7 @@
 "use client";
 
 import { useApp } from "@/hooks/use-app";
-import { Languages, Leaf, LogOut, ShoppingCart, User as UserIcon } from "lucide-react";
+import { Languages, Leaf, LogOut, ShoppingCart, User as UserIcon, History } from "lucide-react";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -17,10 +17,12 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "../ui/badge";
 import { useLanguage } from "@/hooks/use-language";
+import { useRouter } from "next/navigation";
 
 export function Header() {
   const { user, logout, cart } = useApp();
   const { language, setLanguage, getTranslation } = useLanguage();
+  const router = useRouter();
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
@@ -78,6 +80,10 @@ export function Header() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                   <DropdownMenuItem onClick={() => router.push('/order-history')}>
+                    <History className="mr-2 h-4 w-4" />
+                    <span>Order History</span>
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={logout}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>{getTranslation('header-logout-button')}</span>

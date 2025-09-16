@@ -1,7 +1,7 @@
 "use client";
 
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { CartItem, Product, User, UserRole } from "@/lib/types";
+import { CartItem, Order, OrderItem, Product, User } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import React, { createContext, useState, useEffect, ReactNode } from "react";
 
@@ -9,6 +9,7 @@ interface AppContextType {
   user: User | null;
   products: Product[];
   cart: CartItem[];
+  orders: Order[];
   login: (user: Omit<User, 'id'>) => void;
   logout: () => void;
   addProduct: (product: Omit<Product, 'id' | 'farmerId' | 'rating'>, price: number) => void;
@@ -16,6 +17,7 @@ interface AppContextType {
   removeFromCart: (productId: string) => void;
   updateCartQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
+  addOrder: (cart: CartItem[], total: number) => void;
   getFarmerById: (farmerId: string) => User | undefined;
 }
 
@@ -87,12 +89,17 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const router = useRouter();
 
   useEffect(() => {
     const storedUser = localStorage.getItem("agri-user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
+    }
+    const storedOrders = localStorage.getItem("agri-orders");
+    if (storedOrders) {
+      setOrders(JSON.parse(storedOrders));
     }
   }, []);
 
@@ -155,6 +162,31 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setCart([]);
   };
 
+  const addOrder = (cartItems: CartItem[], total: number) => {
+      if (!user || user.role !== 'marketman') return;
+
+      const newOrder: Order = {
+          id: `order_${Date.now()}`,
+          marketmanId: user.id,
+          marketmanName: user.name,
+          items: cartItems.map(cartItem => ({
+              productId: cartItem.product.id,
+              productName: cartItem.product.name,
+              productImage: cartItem.product.image,
+              quantity: cartItem.quantity,
+              price: cartItem.product.price,
+              farmerId: cartItem.product.farmerId,
+          })),
+          total,
+          date: new Date().toISOString(),
+      };
+
+      const updatedOrders = [...orders, newOrder];
+      setOrders(updatedOrders);
+      localStorage.setItem("agri-orders", JSON.stringify(updatedOrders));
+  };
+
+
   const getFarmerById = (farmerId: string) => {
     // In a real app, this would be an API call.
     // We also add the new farmers added via the UI.
@@ -167,7 +199,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AppContext.Provider
-      value={{ user, products, cart, login, logout, addProduct, addToCart, removeFromCart, updateCartQuantity, clearCart, getFarmerById }}
+      value={{ user, products, cart, orders, login, logout, addProduct, addToCart, removeFromCart, updateCartQuantity, clearCart, addOrder, getFarmerById }}
     >
       {children}
     </AppContext.Provider>

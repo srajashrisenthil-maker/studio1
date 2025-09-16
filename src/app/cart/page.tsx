@@ -19,7 +19,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 
 export default function CartPage() {
-    const { user, cart, removeFromCart, updateCartQuantity, clearCart } = useApp();
+    const { user, cart, removeFromCart, updateCartQuantity, clearCart, addOrder } = useApp();
     const router = useRouter();
     const { toast } = useToast();
     const [isPaymentDialogOpen, setPaymentDialogOpen] = useState(false);
@@ -40,6 +40,7 @@ export default function CartPage() {
     }
 
     const handlePayment = () => {
+        addOrder(cart, total);
         setPaymentDialogOpen(false);
         toast({
             title: "Payment Successful",
