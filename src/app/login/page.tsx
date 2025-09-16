@@ -4,7 +4,6 @@ import { Suspense } from 'react';
 import { UserAuthForm } from "@/components/auth/user-auth-form";
 import { useSearchParams } from "next/navigation";
 import { Leaf, Store } from "lucide-react";
-import Image from 'next/image';
 import { useLanguage } from '@/hooks/use-language';
 
 function Login() {
