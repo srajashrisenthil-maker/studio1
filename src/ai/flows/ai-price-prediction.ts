@@ -65,12 +65,11 @@ const aiPricePredictionPrompt = ai.definePrompt({
   - Logistics Cost: {{{logisticsCost}}}
   - Distance to Market: {{{distanceToMarket}}}
 
-  You can use the 'getMarketInformation' tool to get real-time market data for the product.
+  You must use the 'getMarketInformation' tool to get real-time market data for the product before providing a prediction.
 
-  Based on all available information, predict the price for the product and explain your reasoning.
+  Based on all available information, including the market data you fetched, predict the price for the product and explain your reasoning.
   Make sure the predicted price is a number.
-  `, // Added media template for product image
-  // Add retry logic for transient errors
+  `,
   backoff: {
     delay: '2s',
     maxRetries: 3,
