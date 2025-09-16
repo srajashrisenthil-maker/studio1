@@ -5,7 +5,7 @@ import { useApp } from "@/hooks/use-app";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Users } from "lucide-react";
 import { ProductUploadDialog } from "@/components/farmer/product-upload-dialog";
 import { MyProducts } from "@/components/farmer/my-products";
 import { useLanguage } from "@/hooks/use-language";
@@ -40,9 +40,15 @@ export default function FarmerDashboard() {
             <h1 className="font-headline text-3xl font-bold tracking-tight">
               {getTranslation('farmer-dashboard-welcome')}, {user.name}!
             </h1>
-            <p className="text-muted-foreground">
-              {getTranslation('farmer-dashboard-description')}
-            </p>
+            <div className="flex items-center gap-4 text-muted-foreground">
+              <p>
+                {getTranslation('farmer-dashboard-description')}
+              </p>
+               <div className="flex items-center gap-1">
+                    <Users className="h-4 w-4" />
+                    <span>{user.followers || 0} Followers</span>
+                </div>
+            </div>
           </div>
            <ProductUploadDialog>
               <Button size="sm" className="gap-1">
