@@ -5,8 +5,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useApp } from '@/hooks/use-app';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '../ui/button';
-import { Phone, MapPin } from 'lucide-react';
+import { Phone, MapPin, UserPlus, UserCheck, Users } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
+import { useToast } from '@/hooks/use-toast';
 
 interface FarmerProfileDialogProps {
     isOpen: boolean;
@@ -15,12 +16,25 @@ interface FarmerProfileDialogProps {
 }
 
 export function FarmerProfileDialog({ isOpen, onOpenChange, farmerId }: FarmerProfileDialogProps) {
-    const { getFarmerById } = useApp();
+    const { user, getFarmerById, followFarmer, unfollowFarmer } = useApp();
     const { getTranslation } = useLanguage();
+    const { toast } = useToast();
     const farmer = getFarmerById(farmerId);
 
     if (!farmer) {
         return null; 
+    }
+    
+    const isFollowing = user?.following?.includes(farmer.id);
+
+    const handleFollowToggle = () => {
+        if (isFollowing) {
+            unfollowFarmer(farmer.id);
+            toast({ title: `Unfollowed ${farmer.name}`});
+        } else {
+            followFarmer(farmer.id);
+            toast({ title: `Followed ${farmer.name}`});
+        }
     }
 
     return (
@@ -38,7 +52,10 @@ export function FarmerProfileDialog({ isOpen, onOpenChange, farmerId }: FarmerPr
                     </Avatar>
                     <div className="text-center">
                         <h2 className="text-xl font-semibold">{farmer.name}</h2>
-                        <p className="text-muted-foreground">{getTranslation('farmer-role-label') || 'Farmer'}</p>
+                        <div className="flex items-center gap-4 text-muted-foreground text-sm">
+                            <span>{getTranslation('farmer-role-label') || 'Farmer'}</span>
+                            <span className='flex items-center gap-1'><Users className='h-4 w-4' /> {farmer.followers || 0}</span>
+                        </div>
                     </div>
                     <div className="w-full space-y-2 pt-4">
                          <div className="flex items-center text-sm">
@@ -50,12 +67,18 @@ export function FarmerProfileDialog({ isOpen, onOpenChange, farmerId }: FarmerPr
                            <span>{farmer.phone}</span>
                         </div>
                     </div>
-                    <Button asChild className="w-full mt-4">
-                        <a href={`tel:${farmer.phone}`}>
-                            <Phone className="mr-2 h-4 w-4" />
-                            {getTranslation('contact-farmer-button') || 'Contact Farmer'}
-                        </a>
-                    </Button>
+                    <div className="w-full flex flex-col gap-2 mt-4">
+                        <Button asChild>
+                            <a href={`tel:${farmer.phone}`}>
+                                <Phone className="mr-2 h-4 w-4" />
+                                {getTranslation('contact-farmer-button') || 'Contact Farmer'}
+                            </a>
+                        </Button>
+                         <Button variant={isFollowing ? "secondary" : "outline"} onClick={handleFollowToggle}>
+                            {isFollowing ? <UserCheck className="mr-2 h-4 w-4" /> : <UserPlus className="mr-2 h-4 w-4" />}
+                            {isFollowing ? 'Following' : 'Follow'}
+                        </Button>
+                    </div>
                 </div>
             </DialogContent>
         </Dialog>

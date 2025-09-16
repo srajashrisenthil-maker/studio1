@@ -11,6 +11,10 @@ export type User = {
   } | null;
   role: UserRole;
   profilePicture?: string;
+  // For marketmen
+  following?: string[]; 
+  // For farmers
+  followers?: number;
 };
 
 export type Product = {

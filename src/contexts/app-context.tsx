@@ -10,6 +10,7 @@ interface AppContextType {
   products: Product[];
   cart: CartItem[];
   orders: Order[];
+  farmers: User[];
   login: (user: Omit<User, 'id'>) => void;
   logout: () => void;
   addProduct: (product: Omit<Product, 'id' | 'farmerId' | 'rating'>, price: number) => void;
@@ -19,11 +20,13 @@ interface AppContextType {
   clearCart: () => void;
   addOrder: (cart: CartItem[], total: number) => void;
   getFarmerById: (farmerId: string) => User | undefined;
+  followFarmer: (farmerId: string) => void;
+  unfollowFarmer: (farmerId: string) => void;
 }
 
 export const AppContext = createContext<AppContextType | null>(null);
 
-const mockFarmers: User[] = [
+const initialFarmers: User[] = [
     {
         id: 'farmer_123',
         name: 'Suresh Kumar',
@@ -32,6 +35,7 @@ const mockFarmers: User[] = [
         location: { lat: 10.66, lon: 77.01 },
         role: 'farmer',
         profilePicture: 'https://i.ibb.co/yYyVz3D/pexels-greta-hoffman-7722731.jpg',
+        followers: 120,
     },
     {
         id: 'farmer_456',
@@ -41,6 +45,7 @@ const mockFarmers: User[] = [
         location: { lat: 11.41, lon: 76.69 },
         role: 'farmer',
         profilePicture: 'https://i.ibb.co/yYyVz3D/pexels-greta-hoffman-7722731.jpg',
+        followers: 85,
     }
 ];
 
@@ -92,6 +97,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [farmers, setFarmers] = useState<User[]>(initialFarmers);
   const router = useRouter();
 
   useEffect(() => {
@@ -103,18 +109,41 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     if (storedOrders) {
       setOrders(JSON.parse(storedOrders));
     }
+    const storedFarmers = localStorage.getItem("agri-farmers");
+    if (storedFarmers) {
+      setFarmers(JSON.parse(storedFarmers));
+    }
   }, []);
 
+  const persistUser = (updatedUser: User | null) => {
+    if (updatedUser) {
+      localStorage.setItem("agri-user", JSON.stringify(updatedUser));
+    } else {
+      localStorage.removeItem("agri-user");
+    }
+    setUser(updatedUser);
+  }
+
   const login = (userData: Omit<User, 'id'>) => {
-    const newUser = { ...userData, id: `${userData.role}_${Date.now()}`};
-    localStorage.setItem("agri-user", JSON.stringify(newUser));
-    setUser(newUser);
+    const newUser: User = { 
+        ...userData, 
+        id: `${userData.role}_${Date.now()}`,
+        ...(userData.role === 'marketman' && { following: [] }),
+        ...(userData.role === 'farmer' && { followers: 0 }),
+    };
+    persistUser(newUser);
+
+    if (newUser.role === 'farmer') {
+        const newFarmerList = [...farmers, newUser];
+        setFarmers(newFarmerList);
+        localStorage.setItem("agri-farmers", JSON.stringify(newFarmerList));
+    }
+
     router.push(`/${newUser.role}/dashboard`);
   };
 
   const logout = () => {
-    localStorage.removeItem("agri-user");
-    setUser(null);
+    persistUser(null);
     router.push("/");
   };
 
@@ -188,20 +217,43 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem("agri-orders", JSON.stringify(updatedOrders));
   };
 
-
   const getFarmerById = (farmerId: string) => {
-    // In a real app, this would be an API call.
-    // We also add the new farmers added via the UI.
-    const allUsers = [...mockFarmers];
-    if (user && user.role === 'farmer' && !allUsers.find(u => u.id === user.id)) {
-        allUsers.push(user);
-    }
-    return allUsers.find(f => f.id === farmerId && f.role === 'farmer');
+    return farmers.find(f => f.id === farmerId && f.role === 'farmer');
   };
+
+  const updateFarmer = (farmerId: string, updates: Partial<User>) => {
+      const updatedFarmers = farmers.map(f => f.id === farmerId ? { ...f, ...updates } : f);
+      setFarmers(updatedFarmers);
+      localStorage.setItem('agri-farmers', JSON.stringify(updatedFarmers));
+  }
+
+  const followFarmer = (farmerId: string) => {
+    if (!user || user.role !== 'marketman' || !user.following) return;
+
+    const updatedUser: User = { ...user, following: [...user.following, farmerId] };
+    persistUser(updatedUser);
+
+    const farmer = getFarmerById(farmerId);
+    if(farmer) {
+        updateFarmer(farmerId, { followers: (farmer.followers || 0) + 1 });
+    }
+  }
+
+  const unfollowFarmer = (farmerId: string) => {
+    if (!user || user.role !== 'marketman' || !user.following) return;
+
+    const updatedUser: User = { ...user, following: user.following.filter(id => id !== farmerId) };
+    persistUser(updatedUser);
+
+    const farmer = getFarmerById(farmerId);
+    if(farmer && farmer.followers && farmer.followers > 0) {
+        updateFarmer(farmerId, { followers: farmer.followers - 1 });
+    }
+  }
 
   return (
     <AppContext.Provider
-      value={{ user, products, cart, orders, login, logout, addProduct, addToCart, removeFromCart, updateCartQuantity, clearCart, addOrder, getFarmerById }}
+      value={{ user, products, cart, orders, farmers, login, logout, addProduct, addToCart, removeFromCart, updateCartQuantity, clearCart, addOrder, getFarmerById, followFarmer, unfollowFarmer }}
     >
       {children}
     </AppContext.Provider>

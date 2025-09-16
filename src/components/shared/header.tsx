@@ -1,7 +1,7 @@
 "use client";
 
 import { useApp } from "@/hooks/use-app";
-import { Languages, Leaf, LogOut, ShoppingCart, User as UserIcon, History } from "lucide-react";
+import { Languages, Leaf, LogOut, ShoppingCart, User as UserIcon, History, Users } from "lucide-react";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -50,15 +50,17 @@ export function Header() {
                 </DropdownMenuContent>
             </DropdownMenu>
             {user?.role === 'marketman' && (
-              <Button asChild variant="ghost" size="icon">
-                <Link href="/cart">
-                  <ShoppingCart className="h-5 w-5" />
-                  {cartItemCount > 0 && (
-                     <Badge variant="destructive" className="absolute top-2 right-1 h-5 w-5 justify-center p-0 text-xs">{cartItemCount}</Badge>
-                  )}
-                  <span className="sr-only">Shopping Cart</span>
-                </Link>
-              </Button>
+              <>
+                <Button asChild variant="ghost" size="icon">
+                  <Link href="/cart">
+                    <ShoppingCart className="h-5 w-5" />
+                    {cartItemCount > 0 && (
+                       <Badge variant="destructive" className="absolute top-2 right-1 h-5 w-5 justify-center p-0 text-xs">{cartItemCount}</Badge>
+                    )}
+                    <span className="sr-only">Shopping Cart</span>
+                  </Link>
+                </Button>
+              </>
             )}
 
             {user && (
@@ -81,6 +83,12 @@ export function Header() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                   {user.role === 'marketman' && (
+                    <DropdownMenuItem onClick={() => router.push('/marketman/my-farmers')}>
+                        <Users className="mr-2 h-4 w-4" />
+                        <span>My Farmers</span>
+                    </DropdownMenuItem>
+                   )}
                    <DropdownMenuItem onClick={() => router.push('/order-history')}>
                     <History className="mr-2 h-4 w-4" />
                     <span>Order History</span>
