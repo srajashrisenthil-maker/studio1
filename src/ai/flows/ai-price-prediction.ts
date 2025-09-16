@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {run} from 'genkit/flow';
 
 // Input schema for the AI price prediction flow
 const AIPricePredictionInputSchema = z.object({
@@ -69,6 +70,11 @@ const aiPricePredictionPrompt = ai.definePrompt({
   Based on all available information, predict the price for the product and explain your reasoning.
   Make sure the predicted price is a number.
   `, // Added media template for product image
+  // Add retry logic for transient errors
+  backoff: {
+    delay: '2s',
+    maxRetries: 3,
+  },
 });
 
 // Define the AI price prediction flow
