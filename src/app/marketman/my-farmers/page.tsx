@@ -49,7 +49,7 @@ export default function MyFarmersPage() {
                     <CardContent className="p-4 flex items-center justify-between">
                          <div className="flex items-center gap-4">
                             <Avatar className="h-12 w-12">
-                                <AvatarImage src={farmer.profilePicture} alt={farmer.name} />
+                                <AvatarImage src={farmer.profilePicture || undefined} alt={farmer.name} />
                                 <AvatarFallback>{farmer.name.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div>
@@ -69,7 +69,7 @@ export default function MyFarmersPage() {
             <div className="flex items-center justify-between">
                  <div className="flex items-center gap-4">
                     <Avatar className="h-16 w-16">
-                        <AvatarImage src={selectedFarmer!.profilePicture} alt={selectedFarmer!.name} />
+                        <AvatarImage src={selectedFarmer!.profilePicture || undefined} alt={selectedFarmer!.name} />
                         <AvatarFallback>{selectedFarmer!.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>

@@ -88,7 +88,7 @@ export default function CartPage() {
                                             <TableRow key={item.product.id}>
                                                 <TableCell>
                                                     <div className="relative aspect-square w-16 h-16 rounded-md overflow-hidden">
-                                                        <Image src={item.product.image} alt={item.product.name} fill className="object-cover" />
+                                                        <Image src={item.product.image || ''} alt={item.product.name} fill className="object-cover" />
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="font-medium">{item.product.name}</TableCell>

@@ -134,7 +134,7 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
                  <div className='col-span-3'>
                     <div className="flex items-center gap-4">
                        <Avatar className="h-16 w-16 rounded-md">
-                          <AvatarImage src={imagePreview || ''} alt="Product preview" className='object-cover' />
+                          <AvatarImage src={imagePreview || undefined} alt="Product preview" className='object-cover' />
                            <AvatarFallback className="rounded-md">
                                <Upload />
                            </AvatarFallback>

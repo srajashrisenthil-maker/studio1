@@ -83,7 +83,7 @@ export default function OrderHistoryPage() {
                                     <TableRow key={item.productId}>
                                         <TableCell>
                                              <div className="relative aspect-square w-12 h-12 rounded-md overflow-hidden">
-                                                <Image src={item.productImage} alt={item.productName} fill className="object-cover" />
+                                                <Image src={item.productImage || ''} alt={item.productName} fill className="object-cover" />
                                             </div>
                                         </TableCell>
                                         <TableCell>

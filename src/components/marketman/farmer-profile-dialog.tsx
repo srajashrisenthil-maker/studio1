@@ -45,7 +45,7 @@ export function FarmerProfileDialog({ isOpen, onOpenChange, farmerId }: FarmerPr
                 </DialogHeader>
                 <div className="flex flex-col items-center space-y-4">
                     <Avatar className="h-24 w-24">
-                        <AvatarImage src={farmer.profilePicture} alt={farmer.name} />
+                        <AvatarImage src={farmer.profilePicture || undefined} alt={farmer.name} />
                         <AvatarFallback className="text-4xl">
                             {farmer.name.charAt(0).toUpperCase()}
                         </AvatarFallback>

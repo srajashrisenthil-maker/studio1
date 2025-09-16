@@ -103,7 +103,7 @@ export function UserAuthForm({ className, role, ...props }: UserAuthFormProps) {
     }
     
     setTimeout(() => {
-      login({ ...data, role, location, profilePicture: imagePreview });
+      login({ ...data, role, location, profilePicture: imagePreview || undefined });
       setIsLoading(false);
     }, 1000);
   }
@@ -132,7 +132,7 @@ export function UserAuthForm({ className, role, ...props }: UserAuthFormProps) {
                 <Label htmlFor="picture">Profile Picture</Label>
                  <div className="flex items-center gap-4">
                     <Avatar className="h-16 w-16">
-                        <AvatarImage src={imagePreview || ''} alt="Profile preview" />
+                        <AvatarImage src={imagePreview || undefined} alt="Profile preview" />
                         <AvatarFallback>
                             <Upload />
                         </AvatarFallback>

@@ -53,7 +53,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {farmer && (
              <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
                 <Avatar className="h-6 w-6">
-                    <AvatarImage src={farmer.profilePicture} alt={farmer.name} />
+                    <AvatarImage src={farmer.profilePicture || undefined} alt={farmer.name} />
                     <AvatarFallback>{farmer.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <span>{farmer.name}</span>
