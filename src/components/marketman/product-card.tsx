@@ -5,19 +5,21 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import type { Product } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
-import { Phone, ShoppingCart } from "lucide-react";
+import { ShoppingCart, User } from "lucide-react";
 import { useApp } from "@/hooks/use-app";
 import { useToast } from "@/hooks/use-toast";
 import { FarmerProfileDialog } from "./farmer-profile-dialog";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const { addToCart } = useApp();
+  const { addToCart, getFarmerById } = useApp();
   const { toast } = useToast();
   const [isFarmerProfileOpen, setFarmerProfileOpen] = useState(false);
+  const farmer = getFarmerById(product.farmerId);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -48,6 +50,14 @@ export function ProductCard({ product }: ProductCardProps) {
         </CardHeader>
         <CardContent className="p-4 flex-1">
           <CardTitle className="text-lg">{product.name}</CardTitle>
+          {farmer && (
+             <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                <Avatar className="h-6 w-6">
+                    <AvatarFallback>{farmer.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <span>{farmer.name}</span>
+            </div>
+          )}
           <CardDescription className="mt-1 h-10 text-sm overflow-hidden text-ellipsis">
               {product.description}
           </CardDescription>
