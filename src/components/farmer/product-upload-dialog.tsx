@@ -28,7 +28,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 const formSchema = z.object({
   name: z.string().min(3, 'Product name must be at least 3 characters'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  image: z.any().refine(file => file, 'Product image is required.'),
+  image: z.any().refine(file => !!file, 'Product image is required.'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -68,7 +68,7 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
       reader.onloadend = () => {
         const result = reader.result as string;
         setImagePreview(result);
-        setValue("image", result);
+        setValue("image", result, { shouldValidate: true });
         trigger("image");
       };
       reader.readAsDataURL(file);
