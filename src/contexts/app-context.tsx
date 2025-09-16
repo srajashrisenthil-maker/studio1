@@ -94,7 +94,7 @@ const initialProducts: Product[] = [
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [farmers, setFarmers] = useState<User[]>(initialFarmers);
@@ -108,6 +108,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const storedProducts = localStorage.getItem("agri-products");
     if (storedProducts) {
       setProducts(JSON.parse(storedProducts));
+    } else {
+        setProducts(initialProducts);
     }
     const storedOrders = localStorage.getItem("agri-orders");
     if (storedOrders) {
@@ -115,7 +117,24 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
     const storedFarmers = localStorage.getItem("agri-farmers");
     if (storedFarmers) {
-      setFarmers(JSON.parse(storedFarmers));
+        try {
+            const parsedFarmers = JSON.parse(storedFarmers);
+            // Combine initial farmers with stored ones, avoiding duplicates
+            const allFarmers = [...initialFarmers];
+            const storedFarmerIds = new Set(initialFarmers.map(f => f.id));
+            for (const farmer of parsedFarmers) {
+                if (!storedFarmerIds.has(farmer.id)) {
+                    allFarmers.push(farmer);
+                    storedFarmerIds.add(farmer.id);
+                }
+            }
+            setFarmers(allFarmers);
+        } catch (e) {
+            console.error("Failed to parse farmers from localStorage", e);
+            setFarmers(initialFarmers);
+        }
+    } else {
+        setFarmers(initialFarmers);
     }
   }, []);
 
@@ -138,9 +157,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     persistUser(newUser);
 
     if (newUser.role === 'farmer') {
-        const newFarmerList = [...farmers, newUser];
-        setFarmers(newFarmerList);
-        localStorage.setItem("agri-farmers", JSON.stringify(newFarmerList));
+        setFarmers(prevFarmers => {
+            const newFarmerList = [...prevFarmers, newUser];
+             // We avoid saving the full list of farmers with potentially large image data
+             // to prevent exceeding localStorage quota. We'll just manage it in state for the session.
+            return newFarmerList;
+        });
     }
 
     router.push(`/${newUser.role}/dashboard`);
@@ -160,9 +182,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         price,
         rating: 0, // New products start with a rating of 0
     };
-    const updatedProducts = [newProduct, ...products];
-    setProducts(updatedProducts);
-    localStorage.setItem("agri-products", JSON.stringify(updatedProducts));
+    setProducts(prevProducts => {
+      const updatedProducts = [newProduct, ...prevProducts];
+      localStorage.setItem("agri-products", JSON.stringify(updatedProducts));
+      return updatedProducts;
+    });
   };
 
   const addToCart = (product: Product, quantity: number) => {
@@ -228,9 +252,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateFarmer = (farmerId: string, updates: Partial<User>) => {
-      const updatedFarmers = farmers.map(f => f.id === farmerId ? { ...f, ...updates } : f);
-      setFarmers(updatedFarmers);
-      localStorage.setItem('agri-farmers', JSON.stringify(updatedFarmers));
+      setFarmers(prevFarmers => {
+        const updatedFarmers = prevFarmers.map(f => f.id === farmerId ? { ...f, ...updates } : f);
+        // localStorage.setItem('agri-farmers', JSON.stringify(updatedFarmers));
+        return updatedFarmers;
+      });
   }
 
   const followFarmer = (farmerId: string) => {
