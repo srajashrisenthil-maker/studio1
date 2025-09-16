@@ -105,12 +105,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-    const storedProducts = localStorage.getItem("agri-products");
-    if (storedProducts) {
-      setProducts(JSON.parse(storedProducts));
-    } else {
-        setProducts(initialProducts);
-    }
+    // Set initial products, but don't load from local storage to avoid quota issues.
+    setProducts(initialProducts);
+
     const storedOrders = localStorage.getItem("agri-orders");
     if (storedOrders) {
       setOrders(JSON.parse(storedOrders));
@@ -184,7 +181,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     };
     setProducts(prevProducts => {
       const updatedProducts = [newProduct, ...prevProducts];
-      localStorage.setItem("agri-products", JSON.stringify(updatedProducts));
+      // Do not save products to localStorage to avoid quota issues.
+      // Products will be managed in-memory for the session.
       return updatedProducts;
     });
   };
