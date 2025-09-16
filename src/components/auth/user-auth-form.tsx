@@ -11,9 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useApp } from "@/hooks/use-app";
 import { UserRole } from "@/lib/types";
-import { Loader2, MapPin } from "lucide-react";
+import { Loader2, MapPin, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/use-language";
+import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
   role: UserRole;
@@ -23,6 +25,7 @@ const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   phone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit phone number."),
   address: z.string().min(5, "Address must be at least 5 characters."),
+  profilePicture: z.any().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -34,8 +37,9 @@ export function UserAuthForm({ className, role, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [isLocating, setIsLocating] = React.useState<boolean>(false);
   const [location, setLocation] = React.useState<{ lat: number; lon: number } | null>(null);
+  const [imagePreview, setImagePreview] = React.useState<string | null>(null);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm<FormData>({
     resolver: zodResolver(formSchema),
   });
 
@@ -65,6 +69,27 @@ export function UserAuthForm({ className, role, ...props }: UserAuthFormProps) {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        toast({
+          variant: 'destructive',
+          title: 'Image too large',
+          description: 'Please upload an image smaller than 2MB.',
+        });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+        setValue("profilePicture", reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+
   async function onSubmit(data: FormData) {
     setIsLoading(true);
     if (!location) {
@@ -78,7 +103,7 @@ export function UserAuthForm({ className, role, ...props }: UserAuthFormProps) {
     }
     
     setTimeout(() => {
-      login({ ...data, role, location });
+      login({ ...data, role, location, profilePicture: imagePreview });
       setIsLoading(false);
     }, 1000);
   }
@@ -101,6 +126,22 @@ export function UserAuthForm({ className, role, ...props }: UserAuthFormProps) {
             />
             {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
+
+           {role === 'farmer' && (
+            <div className="grid gap-2">
+                <Label htmlFor="picture">Profile Picture</Label>
+                 <div className="flex items-center gap-4">
+                    <Avatar className="h-16 w-16">
+                        <AvatarImage src={imagePreview || ''} alt="Profile preview" />
+                        <AvatarFallback>
+                            <Upload />
+                        </AvatarFallback>
+                    </Avatar>
+                    <Input id="picture" type="file" accept="image/*" onChange={handleFileChange} className="w-full" disabled={isLoading} />
+                 </div>
+            </div>
+           )}
+
           <div className="grid gap-2">
             <Label htmlFor="phone">{getTranslation('form-label-phone-number')}</Label>
             <Input

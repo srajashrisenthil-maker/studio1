@@ -10,6 +10,7 @@ export type User = {
     lon: number;
   } | null;
   role: UserRole;
+  profilePicture?: string;
 };
 
 export type Product = {

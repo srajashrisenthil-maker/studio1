@@ -9,7 +9,7 @@ import { ShoppingCart, User } from "lucide-react";
 import { useApp } from "@/hooks/use-app";
 import { useToast } from "@/hooks/use-toast";
 import { FarmerProfileDialog } from "./farmer-profile-dialog";
-import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 interface ProductCardProps {
   product: Product;
@@ -53,6 +53,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {farmer && (
              <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
                 <Avatar className="h-6 w-6">
+                    <AvatarImage src={farmer.profilePicture} alt={farmer.name} />
                     <AvatarFallback>{farmer.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <span>{farmer.name}</span>

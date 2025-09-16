@@ -30,7 +30,8 @@ const mockFarmers: User[] = [
         phone: '9876543210',
         address: '123, Green Valley, Pollachi, Tamil Nadu',
         location: { lat: 10.66, lon: 77.01 },
-        role: 'farmer'
+        role: 'farmer',
+        profilePicture: 'https://i.ibb.co/yYyVz3D/pexels-greta-hoffman-7722731.jpg',
     },
     {
         id: 'farmer_456',
@@ -38,7 +39,8 @@ const mockFarmers: User[] = [
         phone: '8765432109',
         address: '456, Farm Road, Ooty, Tamil Nadu',
         location: { lat: 11.41, lon: 76.69 },
-        role: 'farmer'
+        role: 'farmer',
+        profilePicture: 'https://i.ibb.co/yYyVz3D/pexels-greta-hoffman-7722731.jpg',
     }
 ];
 

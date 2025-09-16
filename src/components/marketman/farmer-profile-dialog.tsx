@@ -3,7 +3,7 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useApp } from '@/hooks/use-app';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '../ui/button';
 import { Phone, MapPin } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
@@ -31,6 +31,7 @@ export function FarmerProfileDialog({ isOpen, onOpenChange, farmerId }: FarmerPr
                 </DialogHeader>
                 <div className="flex flex-col items-center space-y-4">
                     <Avatar className="h-24 w-24">
+                        <AvatarImage src={farmer.profilePicture} alt={farmer.name} />
                         <AvatarFallback className="text-4xl">
                             {farmer.name.charAt(0).toUpperCase()}
                         </AvatarFallback>
