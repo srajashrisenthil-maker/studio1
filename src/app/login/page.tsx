@@ -12,8 +12,6 @@ function Login() {
   const role = searchParams.get('role') === 'marketman' ? 'marketman' : 'farmer';
   const { getTranslation } = useLanguage();
 
-  const farmerImage = "https://i.ibb.co/yYyVz3D/pexels-greta-hoffman-7722731.jpg";
-
   const farmerQuote = {
     text: getTranslation('login-farmer-quote'),
     author: getTranslation('login-farmer-author')
@@ -24,19 +22,10 @@ function Login() {
     author: getTranslation('login-marketman-author')
   };
 
-  const currentQuote = role === 'marketman' ? marketmanQuote : farmerQuote;
-
-
   return (
     <>
       {role === 'farmer' && (
         <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-                backgroundImage: `url(${farmerImage})`,
-            }}
-          />
            <div className="relative z-20 flex items-center text-lg font-medium">
              <Leaf className="mr-2 h-8 w-8" />
              <span className="font-headline text-3xl">AGROW</span>
