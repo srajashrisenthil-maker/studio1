@@ -7,10 +7,12 @@ import { useEffect } from "react";
 import { ProductGrid } from "@/components/marketman/product-grid";
 import { Recommendations } from "@/components/marketman/recommendations";
 import { Separator } from "@/components/ui/separator";
+import { useLanguage } from "@/hooks/use-language";
 
 export default function MarketmanDashboard() {
   const { user } = useApp();
   const router = useRouter();
+  const { getTranslation } = useLanguage();
 
   useEffect(() => {
     if (!user) {
@@ -23,7 +25,7 @@ export default function MarketmanDashboard() {
   if (!user) {
     return (
         <div className="flex h-screen items-center justify-center">
-            <p>Loading...</p>
+            <p>{getTranslation('loading')}</p>
         </div>
     )
   }
@@ -35,10 +37,10 @@ export default function MarketmanDashboard() {
         <div className="flex items-center">
             <div>
               <h1 className="font-headline text-3xl font-bold tracking-tight">
-                Welcome, {user.name}!
+                {getTranslation('marketman-dashboard-welcome')}, {user.name}!
               </h1>
               <p className="text-muted-foreground">
-                Browse fresh produce from local farmers.
+                {getTranslation('marketman-dashboard-description')}
               </p>
             </div>
         </div>
@@ -49,7 +51,7 @@ export default function MarketmanDashboard() {
 
         <div>
             <h2 className="font-headline text-2xl font-bold tracking-tight mb-4">
-                Available Products
+                {getTranslation('marketman-dashboard-available-products')}
             </h2>
             <ProductGrid />
         </div>

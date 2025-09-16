@@ -4,21 +4,24 @@ import { Suspense } from 'react';
 import { UserAuthForm } from "@/components/auth/user-auth-form";
 import { useSearchParams } from "next/navigation";
 import { Leaf, Store } from "lucide-react";
+import Image from 'next/image';
+import { useLanguage } from '@/hooks/use-language';
 
 function Login() {
   const searchParams = useSearchParams();
   const role = searchParams.get('role') === 'marketman' ? 'marketman' : 'farmer';
+  const { getTranslation } = useLanguage();
 
   const farmerImage = "https://i.ibb.co/yYyVz3D/pexels-greta-hoffman-7722731.jpg";
-  
+
   const farmerQuote = {
-    text: "This platform has revolutionized the way I sell my produce. Direct access to marketmen and fair pricing is a game changer.",
-    author: "A Happy Farmer"
+    text: getTranslation('login-farmer-quote'),
+    author: getTranslation('login-farmer-author')
   };
 
   const marketmanQuote = {
-    text: "Sourcing fresh produce has never been easier. The quality is top-notch, and the direct connection with farmers is invaluable.",
-    author: "A Satisfied Marketman"
+    text: getTranslation('login-marketman-quote'),
+    author: getTranslation('login-marketman-author')
   };
 
   const currentQuote = role === 'marketman' ? marketmanQuote : farmerQuote;
@@ -56,10 +59,10 @@ function Login() {
                 {role === 'farmer' ? <Leaf className="h-10 w-10" /> : <Store className="h-10 w-10" />}
               </div>
             <h1 className="text-2xl font-semibold tracking-tight font-headline">
-              {role === 'farmer' ? "Farmer" : "Marketman"} Portal
+              {role === 'farmer' ? getTranslation('login-farmer-portal') : getTranslation('login-marketman-portal')}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Enter your details to access your dashboard
+              {getTranslation('login-enter-details-prompt')}
             </p>
           </div>
           <UserAuthForm role={role} />

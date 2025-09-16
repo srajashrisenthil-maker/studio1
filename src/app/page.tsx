@@ -1,12 +1,16 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Leaf, Store } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useLanguage } from '@/hooks/use-language';
 
 export default function Home() {
   const heroImage = PlaceHolderImages.find((img) => img.id === 'hero-background');
+  const { getTranslation } = useLanguage();
 
   return (
     <div className="relative min-h-screen w-full bg-background">
@@ -22,7 +26,7 @@ export default function Home() {
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4">
         <header className="text-center mb-12">
           <h1 className="font-headline text-6xl md:text-7xl font-bold text-primary">AGROW</h1>
-          <p className="mt-4 text-xl text-muted-foreground">Bridging the gap between farm and market</p>
+          <p className="mt-4 text-xl text-muted-foreground">{getTranslation('home-tagline')}</p>
         </header>
 
         <main className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full">
@@ -31,14 +35,14 @@ export default function Home() {
               <div className="mx-auto bg-primary text-primary-foreground rounded-full p-4 w-fit">
                 <Leaf className="h-10 w-10" />
               </div>
-              <CardTitle className="font-headline text-3xl pt-4">For Farmers</CardTitle>
+              <CardTitle className="font-headline text-3xl pt-4">{getTranslation('home-for-farmers-title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="mb-6 text-muted-foreground">
-                Sell your produce directly to marketmen. Get fair prices with AI-powered predictions.
+                {getTranslation('home-for-farmers-description')}
               </p>
               <Button asChild size="lg" className="w-full">
-                <Link href="/login?role=farmer">Enter as a Farmer</Link>
+                <Link href="/login?role=farmer">{getTranslation('home-enter-as-farmer')}</Link>
               </Button>
             </CardContent>
           </Card>
@@ -48,20 +52,20 @@ export default function Home() {
               <div className="mx-auto bg-primary text-primary-foreground rounded-full p-4 w-fit">
                 <Store className="h-10 w-10" />
               </div>
-              <CardTitle className="font-headline text-3xl pt-4">For Marketmen</CardTitle>
+              <CardTitle className="font-headline text-3xl pt-4">{getTranslation('home-for-marketmen-title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="mb-6 text-muted-foreground">
-                Discover fresh produce and get smart recommendations based on your purchase history.
+                {getTranslation('home-for-marketmen-description')}
               </p>
               <Button asChild size="lg" className="w-full">
-                <Link href="/login?role=marketman">Enter as a Marketman</Link>
+                <Link href="/login?role=marketman">{getTranslation('home-enter-as-marketman')}</Link>
               </Button>
             </CardContent>
           </Card>
         </main>
         <footer className="mt-12 text-center text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} AGROW. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} AGROW. {getTranslation('home-footer-rights')}</p>
         </footer>
       </div>
     </div>

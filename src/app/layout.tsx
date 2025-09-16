@@ -3,6 +3,7 @@ import './globals.css';
 import { AppProvider } from '@/contexts/app-context';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
+import { LanguageProvider } from '@/contexts/language-context';
 
 export const metadata: Metadata = {
   title: 'AGROW',
@@ -24,8 +25,10 @@ export default function RootLayout({
       </head>
       <body className={cn('h-full font-body antialiased')}>
         <AppProvider>
-          {children}
-          <Toaster />
+          <LanguageProvider>
+            {children}
+            <Toaster />
+          </LanguageProvider>
         </AppProvider>
       </body>
     </html>

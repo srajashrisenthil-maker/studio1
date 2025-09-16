@@ -1,7 +1,7 @@
 "use client";
 
 import { useApp } from "@/hooks/use-app";
-import { Leaf, LogOut, ShoppingCart, User as UserIcon } from "lucide-react";
+import { Languages, Leaf, LogOut, ShoppingCart, User as UserIcon } from "lucide-react";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -10,13 +10,17 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "../ui/badge";
+import { useLanguage } from "@/hooks/use-language";
 
 export function Header() {
   const { user, logout, cart } = useApp();
+  const { language, setLanguage, getTranslation } = useLanguage();
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
@@ -28,6 +32,21 @@ export function Header() {
         </Link>
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-2">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <Languages className="h-5 w-5" />
+                        <span className="sr-only">Change language</span>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>{getTranslation('header-language-switcher-label')}</DropdownMenuLabel>
+                    <DropdownMenuRadioGroup value={language} onValueChange={(value) => setLanguage(value as 'en' | 'ta')}>
+                        <DropdownMenuRadioItem value="en">English</DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="ta">தமிழ்</DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
             {user?.role === 'marketman' && (
               <Button asChild variant="ghost" size="icon">
                 <Link href="/cart">
@@ -61,7 +80,7 @@ export function Header() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={logout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <span>{getTranslation('header-logout-button')}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

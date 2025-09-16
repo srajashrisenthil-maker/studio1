@@ -13,6 +13,7 @@ import { useApp } from "@/hooks/use-app";
 import { UserRole } from "@/lib/types";
 import { Loader2, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/use-language";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
   role: UserRole;
@@ -29,6 +30,7 @@ type FormData = z.infer<typeof formSchema>;
 export function UserAuthForm({ className, role, ...props }: UserAuthFormProps) {
   const { login } = useApp();
   const { toast } = useToast();
+  const { getTranslation } = useLanguage();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [isLocating, setIsLocating] = React.useState<boolean>(false);
   const [location, setLocation] = React.useState<{ lat: number; lon: number } | null>(null);
@@ -46,16 +48,16 @@ export function UserAuthForm({ className, role, ...props }: UserAuthFormProps) {
           setLocation({ lat: latitude, lon: longitude });
           setIsLocating(false);
           toast({
-            title: "Location Captured",
-            description: "Your location has been successfully recorded.",
+            title: getTranslation('toast-location-captured-title'),
+            description: getTranslation('toast-location-captured-description'),
           });
         },
         (error) => {
           console.error("Error getting location", error);
           toast({
             variant: "destructive",
-            title: "Location Error",
-            description: "Could not get your location. Please check your browser settings.",
+            title: getTranslation('toast-location-error-title'),
+            description: getTranslation('toast-location-error-description'),
           });
           setIsLocating(false);
         }
@@ -68,8 +70,8 @@ export function UserAuthForm({ className, role, ...props }: UserAuthFormProps) {
     if (!location) {
         toast({
             variant: "destructive",
-            title: "Location Required",
-            description: "Please provide your location before proceeding.",
+            title: getTranslation('toast-location-required-title'),
+            description: getTranslation('toast-location-required-description'),
         });
         setIsLoading(false);
         return;
@@ -86,10 +88,10 @@ export function UserAuthForm({ className, role, ...props }: UserAuthFormProps) {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="name">Full Name</Label>
+            <Label htmlFor="name">{getTranslation('form-label-full-name')}</Label>
             <Input
               id="name"
-              placeholder="e.g. Ram Singh"
+              placeholder={getTranslation('form-placeholder-full-name')}
               type="text"
               autoCapitalize="words"
               autoComplete="name"
@@ -100,10 +102,10 @@ export function UserAuthForm({ className, role, ...props }: UserAuthFormProps) {
             {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="phone">Phone Number</Label>
+            <Label htmlFor="phone">{getTranslation('form-label-phone-number')}</Label>
             <Input
               id="phone"
-              placeholder="10-digit mobile number"
+              placeholder={getTranslation('form-placeholder-phone-number')}
               type="tel"
               autoComplete="tel"
               disabled={isLoading}
@@ -112,10 +114,10 @@ export function UserAuthForm({ className, role, ...props }: UserAuthFormProps) {
             {errors.phone && <p className="text-sm text-destructive">{errors.phone.message}</p>}
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="address">Full Address</Label>
+            <Label htmlFor="address">{getTranslation('form-label-full-address')}</Label>
             <Input
               id="address"
-              placeholder="Your full address"
+              placeholder={getTranslation('form-placeholder-full-address')}
               type="text"
               autoComplete="street-address"
               disabled={isLoading}
@@ -124,10 +126,10 @@ export function UserAuthForm({ className, role, ...props }: UserAuthFormProps) {
             {errors.address && <p className="text-sm text-destructive">{errors.address.message}</p>}
           </div>
            <div className="grid gap-2">
-              <Label>Location</Label>
+              <Label>{getTranslation('form-label-location')}</Label>
               <Button type="button" variant="outline" onClick={handleGetLocation} disabled={isLocating || isLoading}>
                   {isLocating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MapPin className="mr-2 h-4 w-4" />}
-                  {location ? 'Location Captured!' : 'Get My Location'}
+                  {location ? getTranslation('form-button-location-captured') : getTranslation('form-button-get-my-location')}
               </Button>
                {location && <p className="text-xs text-muted-foreground">Lat: {location.lat.toFixed(4)}, Lon: {location.lon.toFixed(4)}</p>}
            </div>
@@ -135,7 +137,7 @@ export function UserAuthForm({ className, role, ...props }: UserAuthFormProps) {
             {isLoading && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            Enter Dashboard
+            {getTranslation('form-button-enter-dashboard')}
           </Button>
         </div>
       </form>

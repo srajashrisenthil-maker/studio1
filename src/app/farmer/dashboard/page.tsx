@@ -8,10 +8,12 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { ProductUploadDialog } from "@/components/farmer/product-upload-dialog";
 import { MyProducts } from "@/components/farmer/my-products";
+import { useLanguage } from "@/hooks/use-language";
 
 export default function FarmerDashboard() {
   const { user } = useApp();
   const router = useRouter();
+  const { getTranslation } = useLanguage();
 
   useEffect(() => {
     if (!user) {
@@ -24,7 +26,7 @@ export default function FarmerDashboard() {
   if (!user) {
     return (
         <div className="flex h-screen items-center justify-center">
-            <p>Loading...</p>
+            <p>{getTranslation('loading')}</p>
         </div>
     )
   }
@@ -36,16 +38,16 @@ export default function FarmerDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="font-headline text-3xl font-bold tracking-tight">
-              Welcome, {user.name}!
+              {getTranslation('farmer-dashboard-welcome')}, {user.name}!
             </h1>
             <p className="text-muted-foreground">
-              Manage your products and view sales.
+              {getTranslation('farmer-dashboard-description')}
             </p>
           </div>
            <ProductUploadDialog>
               <Button size="sm" className="gap-1">
                 <PlusCircle className="h-4 w-4" />
-                Add Product
+                {getTranslation('farmer-dashboard-add-product')}
               </Button>
             </ProductUploadDialog>
         </div>
