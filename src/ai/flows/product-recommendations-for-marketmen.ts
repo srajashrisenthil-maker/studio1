@@ -67,6 +67,10 @@ const productRecommendationsPrompt = ai.definePrompt({
   {{/each}}
 
   Recommendations:`,
+  backoff: {
+    delay: '2s',
+    maxRetries: 3,
+  },
 });
 
 const productRecommendationsFlow = ai.defineFlow(
