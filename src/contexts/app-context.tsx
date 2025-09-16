@@ -105,6 +105,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+    const storedProducts = localStorage.getItem("agri-products");
+    if (storedProducts) {
+      setProducts(JSON.parse(storedProducts));
+    }
     const storedOrders = localStorage.getItem("agri-orders");
     if (storedOrders) {
       setOrders(JSON.parse(storedOrders));
@@ -156,7 +160,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         price,
         rating: 0, // New products start with a rating of 0
     };
-    setProducts(prev => [newProduct, ...prev]);
+    const updatedProducts = [newProduct, ...products];
+    setProducts(updatedProducts);
+    localStorage.setItem("agri-products", JSON.stringify(updatedProducts));
   };
 
   const addToCart = (product: Product, quantity: number) => {
@@ -259,5 +265,3 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     </AppContext.Provider>
   );
 };
-
-    
