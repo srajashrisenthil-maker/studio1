@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -20,7 +20,6 @@ import { Loader2, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useApp } from '@/hooks/use-app';
 import { formatCurrency } from '@/lib/utils';
-import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 const formSchema = z.object({
@@ -30,7 +29,7 @@ const formSchema = z.object({
     (a) => parseFloat(z.string().parse(a)),
     z.number().positive('Price must be a positive number')
   ),
-  image: z.any().refine(file => !!file, 'Product image is required.'),
+  image: z.string().refine(val => val.length > 0, 'Product image is required.'),
 });
 
 type FormData = z.infer<typeof formSchema>;
