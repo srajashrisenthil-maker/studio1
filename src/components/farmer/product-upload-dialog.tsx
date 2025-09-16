@@ -16,18 +16,19 @@ import { Textarea } from '../ui/textarea';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Loader2, Wand2 } from 'lucide-react';
+import { Loader2, Wand2, Image as ImageIcon, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useApp } from '@/hooks/use-app';
 import { aiPricePrediction, AIPricePredictionOutput } from '@/ai/flows/ai-price-prediction';
+import { generateProductImage } from '@/ai/flows/generate-product-image';
 import Image from 'next/image';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { formatCurrency } from '@/lib/utils';
+import { Skeleton } from '../ui/skeleton';
 
 const formSchema = z.object({
   name: z.string().min(3, 'Product name must be at least 3 characters'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  image: z.any(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -37,13 +38,17 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
   const { user, addProduct } = useApp();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [prediction, setPrediction] = useState<AIPricePredictionOutput | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [finalPrice, setFinalPrice] = useState<number>(0);
 
-  const { register, handleSubmit, formState: { errors }, reset, getValues } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors }, reset, getValues, trigger, watch } = useForm<FormData>({
     resolver: zodResolver(formSchema),
+    mode: 'onChange',
   });
+
+  const productName = watch('name');
 
   useEffect(() => {
     if (prediction) {
@@ -51,31 +56,35 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
     }
   }, [prediction]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 4 * 1024 * 1024) { // 4MB limit for Genkit
-        toast({
-          variant: 'destructive',
-          title: 'Image too large',
-          description: 'Please upload an image smaller than 4MB.',
-        });
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const handleGenerateImage = async () => {
+    const isNameValid = await trigger('name');
+    if (!isNameValid) return;
+    
+    const name = getValues('name');
+    setIsGeneratingImage(true);
+    setImagePreview(null);
+    try {
+      const result = await generateProductImage({ productName: name });
+      setImagePreview(result.imageDataUri);
+    } catch(error) {
+       toast({
+        variant: 'destructive',
+        title: 'Image Generation Failed',
+        description: 'Could not generate an image. Please try again.',
+      });
+      console.error('AI Image Generation Error:', error);
+    } finally {
+      setIsGeneratingImage(false);
     }
-  };
+  }
+
   
   const onSubmit = async (data: FormData) => {
     if (!imagePreview) {
       toast({
         variant: 'destructive',
         title: 'Image required',
-        description: 'Please upload an image of your product.',
+        description: 'Please generate an image for your product.',
       });
       return;
     }
@@ -123,7 +132,7 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
         name: formValues.name,
         description: formValues.description,
         image: imagePreview,
-        imageHint: 'custom product'
+        imageHint: `AI generated image of ${formValues.name}`
       };
       addProduct(productData, finalPrice);
       toast({
@@ -145,6 +154,7 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
     setImagePreview(null);
     setPrediction(null);
     setIsLoading(false);
+    setIsGeneratingImage(false);
     setOpen(false);
     setFinalPrice(0);
   }
@@ -165,31 +175,41 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="name" className="text-right">Name</Label>
                 <div className='col-span-3'>
-                  <Input id="name" {...register('name')} className="w-full" />
+                  <Input id="name" {...register('name')} className="w-full" placeholder="e.g. Fresh Tomatoes"/>
                   {errors.name && <p className="text-sm text-destructive mt-1">{errors.name.message}</p>}
                 </div>
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="description" className="text-right">Description</Label>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label htmlFor="description" className="text-right pt-2">Description</Label>
                  <div className='col-span-3'>
                     <Textarea id="description" {...register('description')} className="w-full" />
                     {errors.description && <p className="text-sm text-destructive mt-1">{errors.description.message}</p>}
                  </div>
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="image" className="text-right">Image</Label>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label htmlFor="image" className="text-right pt-2">Image</Label>
                 <div className='col-span-3'>
-                    <Input id="image" type="file" accept="image/*" onChange={handleFileChange} className="w-full" />
-                    {imagePreview && (
-                        <div className="mt-2 w-full aspect-video relative rounded-md overflow-hidden border">
-                            <Image src={imagePreview} alt="Preview" fill className='object-cover'/>
+                    <Button type="button" variant="outline" onClick={handleGenerateImage} disabled={isGeneratingImage || !productName} className="w-full">
+                      {isGeneratingImage ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                       Generate Image
+                    </Button>
+                    <div className="mt-2 w-full aspect-video relative rounded-md overflow-hidden border bg-muted flex items-center justify-center">
+                      {isGeneratingImage && <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />}
+                      {!isGeneratingImage && imagePreview && (
+                          <Image src={imagePreview} alt="Generated product image" fill className='object-cover'/>
+                      )}
+                       {!isGeneratingImage && !imagePreview && (
+                        <div className="text-center text-muted-foreground p-4">
+                          <ImageIcon className="mx-auto h-8 w-8" />
+                          <p className="text-xs mt-2">Enter a product name and click generate.</p>
                         </div>
-                    )}
+                       )}
+                    </div>
                  </div>
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isLoading || !imagePreview}>
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
                 Get Price Suggestion
               </Button>
