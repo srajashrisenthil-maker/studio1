@@ -11,11 +11,6 @@ function Login() {
   const role = searchParams.get('role') === 'marketman' ? 'marketman' : 'farmer';
   const { getTranslation } = useLanguage();
 
-  const farmerQuote = {
-    text: getTranslation('login-farmer-quote'),
-    author: getTranslation('login-farmer-author')
-  };
-
   const marketmanQuote = {
     text: getTranslation('login-marketman-quote'),
     author: getTranslation('login-marketman-author')
@@ -23,23 +18,6 @@ function Login() {
 
   return (
     <>
-      {role === 'farmer' && (
-        <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
-           <div className="relative z-20 flex items-center text-lg font-medium">
-             <Leaf className="mr-2 h-8 w-8" />
-             <span className="font-headline text-3xl">AGROW</span>
-           </div>
-           <div className="relative z-20 mt-auto">
-            <blockquote className="space-y-2 bg-black/50 p-4 rounded-lg">
-              <p className="text-lg">
-                &ldquo;{farmerQuote.text}&rdquo;
-              </p>
-              <footer className="text-sm">{farmerQuote.author}</footer>
-            </blockquote>
-          </div>
-       </div>
-      )}
-
       <div className="lg:p-8 flex items-center h-screen">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[400px]">
           <div className="flex flex-col space-y-2 text-center">
@@ -70,12 +48,8 @@ function Login() {
 
 
 function LoginPageContent() {
-  const searchParams = useSearchParams();
-  const role = searchParams.get('role') === 'marketman' ? 'marketman' : 'farmer';
-  const gridColsClass = role === 'farmer' ? 'lg:grid-cols-2' : 'lg:grid-cols-1';
-
   return (
-    <div className={`container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none ${gridColsClass} lg:px-0`}>
+    <div className={`container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-1 lg:px-0`}>
         <Login />
     </div>
   )
