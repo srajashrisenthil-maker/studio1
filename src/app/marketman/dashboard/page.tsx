@@ -8,19 +8,45 @@ import { ProductGrid } from "@/components/marketman/product-grid";
 import { Recommendations } from "@/components/marketman/recommendations";
 import { Separator } from "@/components/ui/separator";
 import { useLanguage } from "@/hooks/use-language";
+import { useToast } from "@/hooks/use-toast";
 
 export default function MarketmanDashboard() {
   const { user } = useApp();
   const router = useRouter();
   const { getTranslation } = useLanguage();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!user) {
       router.push("/login?role=marketman");
     } else if (user.role !== 'marketman') {
         router.push('/');
+    } else {
+      // Handle push notifications
+      if ('Notification' in window) {
+        if (Notification.permission === 'granted') {
+          showWelcomeNotification();
+        } else if (Notification.permission !== 'denied') {
+          Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+              showWelcomeNotification();
+            }
+          });
+        }
+      }
     }
   }, [user, router]);
+
+  const showWelcomeNotification = () => {
+    const notification = new Notification('Welcome to AGROW!', {
+        body: 'Check out the latest produce from local farmers.',
+        icon: '/favicon.ico' 
+    });
+
+    notification.onclick = () => {
+        window.focus();
+    };
+  }
 
   if (!user) {
     return (
