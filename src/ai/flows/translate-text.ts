@@ -34,6 +34,10 @@ const translateTextPrompt = ai.definePrompt({
 Text: "{{{text}}}"
 
 Return only the translated text.`,
+  backoff: {
+    delay: '2s',
+    maxRetries: 3,
+  },
 });
 
 const translateTextFlow = ai.defineFlow(
