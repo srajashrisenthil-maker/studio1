@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -39,9 +39,17 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
   const [isLoading, setIsLoading] = useState(false);
   const [prediction, setPrediction] = useState<AIPricePredictionOutput | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [finalPrice, setFinalPrice] = useState<number>(0);
+
   const { register, handleSubmit, formState: { errors }, reset, getValues } = useForm<FormData>({
     resolver: zodResolver(formSchema),
   });
+
+  useEffect(() => {
+    if (prediction) {
+      setFinalPrice(prediction.predictedPrice);
+    }
+  }, [prediction]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -110,19 +118,25 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
 
   const handleAddProduct = () => {
     const formValues = getValues();
-    if (prediction && imagePreview && formValues.name && formValues.description) {
+    if (finalPrice > 0 && imagePreview && formValues.name && formValues.description) {
       const productData = {
         name: formValues.name,
         description: formValues.description,
         image: imagePreview,
         imageHint: 'custom product'
       };
-      addProduct(productData, prediction.predictedPrice);
+      addProduct(productData, finalPrice);
       toast({
         title: "Product Added!",
-        description: `${productData.name} is now listed for sale.`
+        description: `${productData.name} is now listed for sale for ${formatCurrency(finalPrice)}.`
       });
       handleClose();
+    } else {
+        toast({
+            variant: 'destructive',
+            title: 'Invalid Price',
+            description: 'Please enter a valid price for your product.',
+        });
     }
   };
 
@@ -132,6 +146,7 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
     setPrediction(null);
     setIsLoading(false);
     setOpen(false);
+    setFinalPrice(0);
   }
 
   return (
@@ -190,9 +205,19 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
                     <p className='text-foreground'>{prediction.reasoning}</p>
                 </AlertDescription>
             </Alert>
+            <div className="grid gap-2">
+                <Label htmlFor="final-price">Your Price (per kg)</Label>
+                <Input 
+                    id="final-price"
+                    type="number"
+                    value={finalPrice}
+                    onChange={(e) => setFinalPrice(parseFloat(e.target.value) || 0)}
+                    className="text-lg font-bold"
+                />
+            </div>
             <DialogFooter>
                 <Button variant="outline" onClick={() => setPrediction(null)}>Go Back</Button>
-                <Button onClick={handleAddProduct}>Accept & Add Product</Button>
+                <Button onClick={handleAddProduct}>Set Price & Add Product</Button>
             </DialogFooter>
           </div>
         )}
