@@ -5,10 +5,11 @@ import { useApp } from "@/hooks/use-app";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Users } from "lucide-react";
+import { PlusCircle, Users, LineChart } from "lucide-react";
 import { ProductUploadDialog } from "@/components/farmer/product-upload-dialog";
 import { MyProducts } from "@/components/farmer/my-products";
 import { useLanguage } from "@/hooks/use-language";
+import Link from "next/link";
 
 export default function FarmerDashboard() {
   const { user } = useApp();
@@ -50,12 +51,20 @@ export default function FarmerDashboard() {
                 </div>
             </div>
           </div>
-           <ProductUploadDialog>
-              <Button size="sm" className="gap-1">
-                <PlusCircle className="h-4 w-4" />
-                {getTranslation('farmer-dashboard-add-product')}
-              </Button>
-            </ProductUploadDialog>
+           <div className="flex items-center gap-2">
+             <Button asChild variant="outline" size="sm">
+                <Link href="/farmer/market-analysis">
+                    <LineChart className="h-4 w-4" />
+                    Market Analysis
+                </Link>
+             </Button>
+             <ProductUploadDialog>
+                <Button size="sm" className="gap-1">
+                  <PlusCircle className="h-4 w-4" />
+                  {getTranslation('farmer-dashboard-add-product')}
+                </Button>
+              </ProductUploadDialog>
+           </div>
         </div>
         <MyProducts />
       </main>

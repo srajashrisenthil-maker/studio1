@@ -1,7 +1,7 @@
 "use client";
 
 import { useApp } from "@/hooks/use-app";
-import { Languages, Leaf, LogOut, ShoppingCart, User as UserIcon, History, Users } from "lucide-react";
+import { Languages, Leaf, LogOut, ShoppingCart, User as UserIcon, History, Users, LineChart } from "lucide-react";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -87,6 +87,12 @@ export function Header() {
                     <DropdownMenuItem onClick={() => router.push('/marketman/my-farmers')}>
                         <Users className="mr-2 h-4 w-4" />
                         <span>My Farmers</span>
+                    </DropdownMenuItem>
+                   )}
+                   {user.role === 'farmer' && (
+                    <DropdownMenuItem onClick={() => router.push('/farmer/market-analysis')}>
+                        <LineChart className="mr-2 h-4 w-4" />
+                        <span>Market Analysis</span>
                     </DropdownMenuItem>
                    )}
                    <DropdownMenuItem onClick={() => router.push('/order-history')}>
