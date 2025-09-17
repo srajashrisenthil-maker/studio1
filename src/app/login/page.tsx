@@ -1,15 +1,18 @@
 "use client";
 
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { UserAuthForm } from "@/components/auth/user-auth-form";
 import { useSearchParams } from "next/navigation";
 import { Leaf, Store } from "lucide-react";
 import { useLanguage } from '@/hooks/use-language';
+import { PinAuthForm } from '@/components/auth/pin-auth-form';
+import { Button } from '@/components/ui/button';
 
 function Login() {
   const searchParams = useSearchParams();
   const role = searchParams.get('role') === 'marketman' ? 'marketman' : 'farmer';
   const { getTranslation } = useLanguage();
+  const [isReturningUser, setIsReturningUser] = useState(false);
 
   const marketmanQuote = {
     text: getTranslation('login-marketman-quote'),
@@ -25,14 +28,26 @@ function Login() {
                 {role === 'farmer' ? <Leaf className="h-10 w-10" /> : <Store className="h-10 w-10" />}
               </div>
             <h1 className="text-2xl font-semibold tracking-tight font-headline">
-              {role === 'farmer' ? getTranslation('login-farmer-portal') : getTranslation('login-marketman-portal')}
+              {isReturningUser 
+                ? `Welcome Back ${role === 'farmer' ? 'Farmer' : 'Marketman'}`
+                : role === 'farmer' ? getTranslation('login-farmer-portal') : getTranslation('login-marketman-portal')
+              }
             </h1>
             <p className="text-sm text-muted-foreground">
-              {getTranslation('login-enter-details-prompt')}
+              {isReturningUser 
+                ? "Enter your phone and 4-digit PIN to login."
+                : getTranslation('login-enter-details-prompt')
+              }
             </p>
           </div>
-          <UserAuthForm role={role} />
-           {role === 'marketman' && (
+          
+          {isReturningUser ? <PinAuthForm role={role} /> : <UserAuthForm role={role} />}
+
+          <Button variant="link" onClick={() => setIsReturningUser(!isReturningUser)}>
+            {isReturningUser ? "New user? Register here." : "Already have an account? Login with PIN."}
+          </Button>
+
+           {role === 'marketman' && !isReturningUser && (
             <blockquote className="space-y-2 text-center text-sm mt-8">
                 <p className="text-lg">
                   &ldquo;{marketmanQuote.text}&rdquo;

@@ -25,6 +25,7 @@ const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   phone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit phone number."),
   address: z.string().min(5, "Address must be at least 5 characters."),
+  pin: z.string().regex(/^\d{4}$/, "PIN must be 4 digits."),
   profilePicture: z.any().optional(),
 });
 
@@ -103,7 +104,7 @@ export function UserAuthForm({ className, role, ...props }: UserAuthFormProps) {
     }
     
     setTimeout(() => {
-      login({ ...data, role, location, profilePicture: imagePreview || undefined });
+      login({ ...data, role, location, profilePicture: imagePreview || undefined, pin: data.pin });
       setIsLoading(false);
     }, 1000);
   }
@@ -132,7 +133,7 @@ export function UserAuthForm({ className, role, ...props }: UserAuthFormProps) {
                 <Label htmlFor="picture">Profile Picture</Label>
                  <div className="flex items-center gap-4">
                     <Avatar className="h-16 w-16">
-                        <AvatarImage src={imagePreview || undefined} alt="Profile preview" />
+                        <AvatarImage src={imagePreview} alt="Profile preview" />
                         <AvatarFallback>
                             <Upload />
                         </AvatarFallback>
@@ -166,6 +167,19 @@ export function UserAuthForm({ className, role, ...props }: UserAuthFormProps) {
             />
             {errors.address && <p className="text-sm text-destructive">{errors.address.message}</p>}
           </div>
+           <div className="grid gap-2">
+                <Label htmlFor="pin">Create a 4-Digit PIN</Label>
+                <Input
+                id="pin"
+                placeholder="e.g. 1234"
+                type="password"
+                maxLength={4}
+                autoComplete="new-password"
+                disabled={isLoading}
+                {...register("pin")}
+                />
+                {errors.pin && <p className="text-sm text-destructive">{errors.pin.message}</p>}
+            </div>
            <div className="grid gap-2">
               <Label>{getTranslation('form-label-location')}</Label>
               <Button type="button" variant="outline" onClick={handleGetLocation} disabled={isLocating || isLoading}>

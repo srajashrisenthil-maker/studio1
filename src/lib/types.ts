@@ -10,6 +10,7 @@ export type User = {
     lon: number;
   } | null;
   role: UserRole;
+  pin: string;
   profilePicture?: string;
   // For marketmen
   following?: string[]; 

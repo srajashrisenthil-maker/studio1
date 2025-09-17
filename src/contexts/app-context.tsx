@@ -1,4 +1,3 @@
-
 "use client";
 
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -13,6 +12,7 @@ interface AppContextType {
   orders: Order[];
   farmers: User[];
   login: (user: Omit<User, 'id'>) => void;
+  loginWithPin: (phone: string, pin: string) => boolean;
   logout: () => void;
   addProduct: (product: Omit<Product, 'id' | 'farmerId' | 'rating'>, price: number) => string;
   addToCart: (product: Product, quantity: number) => void;
@@ -35,6 +35,7 @@ const initialFarmers: User[] = [
         address: '123, Green Valley, Pollachi, Tamil Nadu',
         location: { lat: 10.66, lon: 77.01 },
         role: 'farmer',
+        pin: '1234',
         profilePicture: 'https://i.ibb.co/yYyVz3D/pexels-greta-hoffman-7722731.jpg',
         followers: 120,
     },
@@ -45,6 +46,7 @@ const initialFarmers: User[] = [
         address: '456, Farm Road, Ooty, Tamil Nadu',
         location: { lat: 11.41, lon: 76.69 },
         role: 'farmer',
+        pin: '5678',
         profilePicture: 'https://i.ibb.co/yYyVz3D/pexels-greta-hoffman-7722731.jpg',
         followers: 85,
     }
@@ -98,7 +100,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [farmers, setFarmers] = useState<User[]>(initialFarmers);
+  const [farmers, setFarmers] = useState<User[]>([]);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -120,27 +123,31 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     if (storedOrders) {
       setOrders(JSON.parse(storedOrders));
     }
-    const storedFarmers = localStorage.getItem("agri-farmers");
-    if (storedFarmers) {
-        try {
-            const parsedFarmers = JSON.parse(storedFarmers);
-            // Combine initial farmers with stored ones, avoiding duplicates
-            const allFarmers = [...initialFarmers];
-            const storedFarmerIds = new Set(initialFarmers.map(f => f.id));
-            for (const farmer of parsedFarmers) {
-                if (!storedFarmerIds.has(farmer.id)) {
-                    allFarmers.push(farmer);
-                    storedFarmerIds.add(farmer.id);
-                }
-            }
-            setFarmers(allFarmers);
-        } catch (e) {
-            console.error("Failed to parse farmers from localStorage", e);
-            setFarmers(initialFarmers);
-        }
-    } else {
-        setFarmers(initialFarmers);
+    
+    // Load all users from localStorage (farmers and marketmen)
+    const storedAllUsers = localStorage.getItem("agri-all-users");
+    let usersToLoad: User[] = [];
+    if (storedAllUsers) {
+      try {
+        usersToLoad = JSON.parse(storedAllUsers);
+      } catch (e) {
+        console.error("Failed to parse all users from localStorage", e);
+      }
     }
+
+    // Merge with initial farmers, avoiding duplicates
+    const combinedUsers = [...initialFarmers];
+    const loadedUserIds = new Set(initialFarmers.map(u => u.id));
+    for (const loadedUser of usersToLoad) {
+      if (!loadedUserIds.has(loadedUser.id)) {
+        combinedUsers.push(loadedUser);
+        loadedUserIds.add(loadedUser.id);
+      }
+    }
+    
+    setAllUsers(combinedUsers);
+    setFarmers(combinedUsers.filter(u => u.role === 'farmer'));
+
   }, []);
 
   const persistUser = (updatedUser: User | null) => {
@@ -150,6 +157,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       localStorage.removeItem("agri-user");
     }
     setUser(updatedUser);
+  }
+  
+  const persistAllUsers = (users: User[]) => {
+      localStorage.setItem("agri-all-users", JSON.stringify(users));
   }
 
   const login = (userData: Omit<User, 'id'>) => {
@@ -161,12 +172,25 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     };
     persistUser(newUser);
 
+    const newAllUsers = [...allUsers, newUser];
+    setAllUsers(newAllUsers);
+    persistAllUsers(newAllUsers);
+
     if (newUser.role === 'farmer') {
-        const newFarmerList = [...farmers, newUser];
-        setFarmers(newFarmerList);
+        setFarmers(newAllUsers.filter(u => u.role === 'farmer'));
     }
 
     router.push(`/${newUser.role}/dashboard`);
+  };
+
+  const loginWithPin = (phone: string, pin: string): boolean => {
+    const foundUser = allUsers.find(u => u.phone === phone && u.pin === pin);
+    if (foundUser) {
+        persistUser(foundUser);
+        router.push(`/${foundUser.role}/dashboard`);
+        return true;
+    }
+    return false;
   };
 
   const logout = () => {
@@ -255,11 +279,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateFarmer = (farmerId: string, updates: Partial<User>) => {
-      setFarmers(prevFarmers => {
-        const updatedFarmers = prevFarmers.map(f => f.id === farmerId ? { ...f, ...updates } : f);
-        // localStorage.setItem('agri-farmers', JSON.stringify(updatedFarmers));
-        return updatedFarmers;
-      });
+      const updatedAllUsers = allUsers.map(u => u.id === farmerId ? { ...u, ...updates } : u);
+      setAllUsers(updatedAllUsers);
+      persistAllUsers(updatedAllUsers);
+      setFarmers(updatedAllUsers.filter(u => u.role === 'farmer'));
   }
 
   const followFarmer = (farmerId: string) => {
@@ -288,7 +311,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AppContext.Provider
-      value={{ user, products, cart, orders, farmers, login, logout, addProduct, addToCart, removeFromCart, updateCartQuantity, clearCart, addOrder, getFarmerById, followFarmer, unfollowFarmer }}
+      value={{ user, products, cart, orders, farmers, login, loginWithPin, logout, addProduct, addToCart, removeFromCart, updateCartQuantity, clearCart, addOrder, getFarmerById, followFarmer, unfollowFarmer }}
     >
       {children}
     </AppContext.Provider>
