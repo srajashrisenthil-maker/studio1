@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useState } from 'react';
 import {
@@ -21,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useApp } from '@/hooks/use-app';
 import { formatCurrency } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
   name: z.string().min(3, 'Product name must be at least 3 characters'),
@@ -37,6 +39,7 @@ type FormData = z.infer<typeof formSchema>;
 export function ProductUploadDialog({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
   const { addProduct } = useApp();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -71,7 +74,7 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
   const onSubmit = (data: FormData) => {
     setIsLoading(true);
     
-    addProduct({
+    const newProductId = addProduct({
         name: data.name,
         description: data.description,
         image: data.image,
@@ -80,11 +83,13 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
 
     toast({
         title: "Product Added!",
-        description: `${data.name} is now listed for sale for ${formatCurrency(data.price)}.`,
+        description: `${data.name} is now listed for sale.`,
     });
     
     setIsLoading(false);
     handleClose();
+    
+    router.push(`/farmer/market-analysis?productId=${newProductId}`);
   };
 
   const handleClose = () => {
@@ -134,7 +139,7 @@ export function ProductUploadDialog({ children }: { children: React.ReactNode })
                  <div className='col-span-3'>
                     <div className="flex items-center gap-4">
                        <Avatar className="h-16 w-16 rounded-md">
-                          <AvatarImage src={imagePreview || undefined} alt="Product preview" className='object-cover' />
+                          <AvatarImage src={imagePreview || null} alt="Product preview" className='object-cover' />
                            <AvatarFallback className="rounded-md">
                                <Upload />
                            </AvatarFallback>

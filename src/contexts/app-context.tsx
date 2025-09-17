@@ -1,3 +1,4 @@
+
 "use client";
 
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -13,7 +14,7 @@ interface AppContextType {
   farmers: User[];
   login: (user: Omit<User, 'id'>) => void;
   logout: () => void;
-  addProduct: (product: Omit<Product, 'id' | 'farmerId' | 'rating'>, price: number) => void;
+  addProduct: (product: Omit<Product, 'id' | 'farmerId' | 'rating'>, price: number) => string;
   addToCart: (product: Product, quantity: number) => void;
   removeFromCart: (productId: string) => void;
   updateCartQuantity: (productId: string, quantity: number) => void;
@@ -105,9 +106,16 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-    // Set initial products, but don't load from local storage to avoid quota issues.
-    setProducts(initialProducts);
-
+    const storedProducts = localStorage.getItem("agri-products");
+    if (storedProducts) {
+      try {
+        setProducts(JSON.parse(storedProducts));
+      } catch (e) {
+        setProducts(initialProducts);
+      }
+    } else {
+      setProducts(initialProducts);
+    }
     const storedOrders = localStorage.getItem("agri-orders");
     if (storedOrders) {
       setOrders(JSON.parse(storedOrders));
@@ -154,12 +162,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     persistUser(newUser);
 
     if (newUser.role === 'farmer') {
-        setFarmers(prevFarmers => {
-            const newFarmerList = [...prevFarmers, newUser];
-             // We avoid saving the full list of farmers with potentially large image data
-             // to prevent exceeding localStorage quota. We'll just manage it in state for the session.
-            return newFarmerList;
-        });
+        const newFarmerList = [...farmers, newUser];
+        setFarmers(newFarmerList);
     }
 
     router.push(`/${newUser.role}/dashboard`);
@@ -170,8 +174,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     router.push("/");
   };
 
-  const addProduct = (productData: Omit<Product, 'id'| 'farmerId' | 'rating'>, price: number) => {
-    if(!user || user.role !== 'farmer') return;
+  const addProduct = (productData: Omit<Product, 'id'| 'farmerId' | 'rating'>, price: number): string => {
+    if(!user || user.role !== 'farmer') return '';
     const newProduct: Product = {
         ...productData,
         id: `prod_${Date.now()}`,
@@ -185,6 +189,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       // Products will be managed in-memory for the session.
       return updatedProducts;
     });
+    return newProduct.id;
   };
 
   const addToCart = (product: Product, quantity: number) => {

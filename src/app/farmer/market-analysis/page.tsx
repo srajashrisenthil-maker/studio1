@@ -1,9 +1,10 @@
+
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { Header } from '@/components/shared/header';
 import { useApp } from '@/hooks/use-app';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getMarketTrends, MarketTrendsOutput } from '@/ai/flows/market-trends';
@@ -20,9 +21,11 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export default function MarketAnalysisPage() {
+function MarketAnalysis() {
   const { user, products } = useApp();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const productIdFromUrl = searchParams.get('productId');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [marketData, setMarketData] = useState<MarketTrendsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,10 +41,12 @@ export default function MarketAnalysisPage() {
   const farmerProducts = useMemo(() => products.filter(p => p.farmerId === user?.id), [products, user]);
 
   useEffect(() => {
-    if (farmerProducts.length > 0 && !selectedProductId) {
+    if (productIdFromUrl) {
+      setSelectedProductId(productIdFromUrl);
+    } else if (farmerProducts.length > 0 && !selectedProductId) {
       setSelectedProductId(farmerProducts[0].id);
     }
-  }, [farmerProducts, selectedProductId]);
+  }, [farmerProducts, selectedProductId, productIdFromUrl]);
 
   useEffect(() => {
     if (!selectedProductId) return;
@@ -64,6 +69,12 @@ export default function MarketAnalysisPage() {
 
     fetchMarketData();
   }, [selectedProductId, farmerProducts]);
+  
+  const handleProductChange = (productId: string) => {
+    setSelectedProductId(productId);
+    // Update URL without reloading the page
+    router.replace(`/farmer/market-analysis?productId=${productId}`);
+  }
 
   if (!user || user.role !== 'farmer') {
     return null;
@@ -86,7 +97,7 @@ export default function MarketAnalysisPage() {
               <CardTitle>Product Selection</CardTitle>
               <Select
                 value={selectedProductId || ""}
-                onValueChange={setSelectedProductId}
+                onValueChange={handleProductChange}
                 disabled={farmerProducts.length === 0}
               >
                 <SelectTrigger className="w-full sm:w-[250px]">
@@ -163,4 +174,12 @@ export default function MarketAnalysisPage() {
       </main>
     </div>
   );
+}
+
+export default function MarketAnalysisPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <MarketAnalysis />
+        </Suspense>
+    )
 }
