@@ -42,7 +42,13 @@ const marketTrendsPrompt = ai.definePrompt({
   - Weather events like monsoons can significantly impact prices.
   - Government policies and demand from large markets also influence prices.
 
-  For {{{productName}}}, generate a concise trend summary and a list of 6-8 monthly average price points for the last few months.
+  If the product is "Onion" or "Spicy Onions", use the following specific information:
+  - Onion prices are highly volatile. They typically start rising from August, peak in November-December due to depleted old stocks and delayed arrival of the new Kharif crop.
+  - Prices start to cool down from January onwards as the late Kharif and Rabi harvests enter the market.
+  - Summer months (April-May) are usually stable with moderate prices.
+  - Generate a price history that reflects this volatility, with prices (per kg) ranging from as low as ₹15-20 during harvest to as high as ₹80-100 during the peak lean season.
+
+  For other products, generate a plausible trend. For any product, generate a concise trend summary and a list of 6-8 monthly average price points for the last few months.
   The date format should be "Mon 'YY" (e.g., "Jan 24").
   
   Example for "Tomatoes":
